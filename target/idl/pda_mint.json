@@ -1,0 +1,95 @@
+{
+  "version": "0.0.0",
+  "name": "pda_mint",
+  "instructions": [
+    {
+      "name": "createPack",
+      "accounts": [
+        {
+          "name": "mintAuth",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "payer",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "authBump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "mintOne",
+      "accounts": [
+        {
+          "name": "mint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mintAuth",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "authPdaBump",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "FreezeMint",
+      "fields": [
+        {
+          "name": "mint",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "index": true
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 300,
+      "name": "NoMintControl",
+      "msg": "mint auth must be the pack authority pda"
+    },
+    {
+      "code": 301,
+      "name": "NoFreezeControl",
+      "msg": "mint's freeze auth must be the pack authority pda"
+    }
+  ],
+  "metadata": {
+    "address": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+  }
+}
