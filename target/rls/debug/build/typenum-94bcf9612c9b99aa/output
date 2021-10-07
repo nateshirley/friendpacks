@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/nathanshirley/pda_mint/target/rls/debug/build/typenum-94bcf9612c9b99aa/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/Users/nathanshirley/pda_mint/target/rls/debug/build/typenum-94bcf9612c9b99aa/out/op.rs

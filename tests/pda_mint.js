@@ -2,7 +2,7 @@ const anchor = require('@project-serum/anchor');
 const { rpc } = require('@project-serum/anchor/dist/cjs/utils');
 const { Keypair, PublicKey, TransactionInstruction, SystemProgram } = anchor.web3;
 const SPL = require("@solana/spl-token");
-const { TOKEN_PROGRAM_ID, Token, MintLayout }  = SPL;
+const { TOKEN_PROGRAM_ID, Token, MintLayout, AuthorityType }  = SPL;
 
 describe('pda_mint', () => {
 
@@ -16,24 +16,39 @@ describe('pda_mint', () => {
   let payerTokenAccount = null;
   let rent = null;
   let authPda = null;
+  let authPdaBump = null;
 
   it('config', async () => {
     const _rent = await provider.connection.getMinimumBalanceForRentExemption(
       MintLayout.span
     );
     rent = _rent;
-    let [_authPDA, nonce] = await PublicKey.findProgramAddress(
+    let [_authPDA, _bump] = await PublicKey.findProgramAddress(
       //gets a determinstic pda address using this string and the program id
       [anchor.utils.bytes.utf8.encode("authority")],
       program.programId
     );
     authPda = _authPDA;
+    authPdaBump = _bump
 
     payerTokenAccount = await getAssociatedTokenAccountAddress(payer.publicKey, mint.publicKey);
   });
 
+  // it('try the create pack', async () => {
+  //   let [_fraudPDA, _bump] = await PublicKey.findProgramAddress(
+  //     //gets a determinstic pda address using this string and the program id
+  //     [anchor.utils.bytes.utf8.encode("fraud")],
+  //     program.programId
+  //   );
+  //   let tx = await program.rpc.createPack(authPdaBump, {
+  //     accounts: {
+  //       mintAuth: _fraudPDA
+  //     }
+  //   })
+  // });
+
   it('mint one token', async () => {
-    const tx = await program.rpc.mintOne({
+    const tx = await program.rpc.mintOne(authPdaBump, {
       accounts: {
         mint: mint.publicKey,
         mintAuth: authPda,
@@ -41,6 +56,7 @@ describe('pda_mint', () => {
         tokenProgram: TOKEN_PROGRAM_ID,
         owner: payer.publicKey,
       }, instructions: [
+        //this requires the mint to sign 
         SystemProgram.createAccount({
           fromPubkey: payer.publicKey,
           newAccountPubkey: mint.publicKey,
@@ -64,12 +80,12 @@ describe('pda_mint', () => {
         ),
       ], 
       signers: [
-        payer, mint, 
+        payer, mint
       ]
     });
     console.log("Your transaction signature", tx);
 
-    //i need to bring the create mint into the program
+    //mint another
     // const again = await program.rpc.mintOne({
     //   accounts: {
     //     mint: mint.publicKey,
@@ -94,7 +110,17 @@ describe('pda_mint', () => {
     console.log("the user's token balance: ", balance);
     let mintInfo = await TokenMint.getMintInfo();
     console.log("the mint's supply: ", mintInfo.supply);
+
+
+  
+    
   });
+
+  
+
+
+
+
 });
 
 
@@ -131,3 +157,38 @@ async function getAssociatedTokenAccountAddress(owner, mint) {
     )
   )[0];
 };
+
+
+  /*
+    //this doesn't work bc the pda is not signing --- good
+    await TokenMint.setAuthority(
+      mint.publicKey,
+      payer.publicKey,
+      'FreezeAccount',
+      authPda,
+      [mint, payer]
+    );
+    */
+
+    /*
+  if you make a different token account (not owned by the owner) and try to mint to it, the constraint has_one = owner kicks in and blocks it
+      
+   await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(otherPayer.publicKey, 50000000000),
+      "confirmed"
+  ) ;
+  let otherPayer = Keypair.generate();
+  let otherTokenAccount = null;
+  otherTokenAccount = await getAssociatedTokenAccountAddress(otherPayer.publicKey, mint.publicKey);
+  
+  createAssociatedTokenAccountInstruction(
+          mint.publicKey,
+          otherTokenAccount,
+          otherPayer.publicKey,
+          otherPayer.publicKey,
+        ),
+  */
+
+
+  //i'm not sure if someone can fuck this up by passing in a custom mint. my current thinking is no
+  //wait yes. because i need to make sure the freeze authority is actually the authpda
