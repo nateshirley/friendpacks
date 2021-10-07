@@ -48,13 +48,15 @@ describe('pda_mint', () => {
   // });
 
   it('mint one token', async () => {
-    const tx = await program.rpc.mintOne(authPdaBump, {
+
+
+    const tx = await program.rpc.createPack(authPdaBump, {
       accounts: {
         mint: mint.publicKey,
         mintAuth: authPda,
         tokenAccount: payerTokenAccount,
-        tokenProgram: TOKEN_PROGRAM_ID,
         owner: payer.publicKey,
+        tokenProgram: TOKEN_PROGRAM_ID,
       }, instructions: [
         //this requires the mint to sign 
         SystemProgram.createAccount({
@@ -86,15 +88,19 @@ describe('pda_mint', () => {
     console.log("Your transaction signature", tx);
 
     //mint another
-    // const again = await program.rpc.mintOne({
-    //   accounts: {
-    //     mint: mint.publicKey,
-    //     mintAuth: authPda,
-    //     tokenAccount: payerTokenAccount,
-    //     tokenProgram: TOKEN_PROGRAM_ID
-    //   },
-    // });
-    // console.log("Your transaction signature", again);
+    const again = await program.rpc.joinPack(authPdaBump, {
+      accounts: {
+        mint: mint.publicKey,
+        mintAuth: authPda,
+        tokenAccount: payerTokenAccount,
+        owner: payer.publicKey,
+        tokenProgram: TOKEN_PROGRAM_ID
+      }, signers: [
+        payer
+      ]
+    });
+    console.log("Your transaction signature", again);
+   
   });
 
   it('see if it worked', async () => {
