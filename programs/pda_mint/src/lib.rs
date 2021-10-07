@@ -2,7 +2,7 @@ use anchor_lang::{prelude::*, solana_program::{program::invoke_signed, program_p
 use spl_token::{instruction::{mint_to_checked, AuthorityType}, state::Mint};
 use anchor_spl::token::{self, Token, Mint as MintAccount, MintTo, TokenAccount, SetAuthority};
 
-
+//i cleaned up from the git ignore
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 const AUTH_PDA_SEED: &[u8] = b"authority";
 
