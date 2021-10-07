@@ -23,6 +23,7 @@ describe('pda_mint', () => {
       MintLayout.span
     );
     rent = _rent;
+    
     let [_authPDA, _bump] = await PublicKey.findProgramAddress(
       //gets a determinstic pda address using this string and the program id
       [anchor.utils.bytes.utf8.encode("authority")],
@@ -34,22 +35,8 @@ describe('pda_mint', () => {
     payerTokenAccount = await getAssociatedTokenAccountAddress(payer.publicKey, mint.publicKey);
   });
 
-  // it('try the create pack', async () => {
-  //   let [_fraudPDA, _bump] = await PublicKey.findProgramAddress(
-  //     //gets a determinstic pda address using this string and the program id
-  //     [anchor.utils.bytes.utf8.encode("fraud")],
-  //     program.programId
-  //   );
-  //   let tx = await program.rpc.createPack(authPdaBump, {
-  //     accounts: {
-  //       mintAuth: _fraudPDA
-  //     }
-  //   })
-  // });
 
-  it('mint one token', async () => {
-
-
+  it('create a pack', async () => {
     const tx = await program.rpc.createPack(authPdaBump, {
       accounts: {
         mint: mint.publicKey,
@@ -86,21 +73,37 @@ describe('pda_mint', () => {
       ]
     });
     console.log("Your transaction signature", tx);
+  });
+
+  it('join the pack with a different user', async () => {
+    let secondMember = Keypair.generate();
+    await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(secondMember.publicKey, 50000000000),
+      "confirmed"
+    );
+    let secondTokenAccount = await getAssociatedTokenAccountAddress(secondMember.publicKey, mint.publicKey);
 
     //mint another
     const again = await program.rpc.joinPack(authPdaBump, {
       accounts: {
         mint: mint.publicKey,
         mintAuth: authPda,
-        tokenAccount: payerTokenAccount,
-        owner: payer.publicKey,
+        tokenAccount: secondTokenAccount,
+        owner: secondMember.publicKey,
         tokenProgram: TOKEN_PROGRAM_ID
-      }, signers: [
-        payer
+      }, instructions: [
+        createAssociatedTokenAccountInstruction(
+          mint.publicKey,
+          secondTokenAccount,
+          secondMember.publicKey,
+          secondMember.publicKey,
+        ),
+      ],
+      signers: [
+        secondMember
       ]
     });
     console.log("Your transaction signature", again);
-   
   });
 
   it('see if it worked', async () => {
@@ -116,17 +119,7 @@ describe('pda_mint', () => {
     console.log("the user's token balance: ", balance);
     let mintInfo = await TokenMint.getMintInfo();
     console.log("the mint's supply: ", mintInfo.supply);
-
-
-  
-    
   });
-
-  
-
-
-
-
 });
 
 
@@ -165,7 +158,25 @@ async function getAssociatedTokenAccountAddress(owner, mint) {
 };
 
 
+  //test to show that you can't create a pack with a pda that is not the authority pda of the program
+  // it('try the create pack', async () => {
+  //   let [_fraudPDA, _bump] = await PublicKey.findProgramAddress(
+  //     //gets a determinstic pda address using this string and the program id
+  //     [anchor.utils.bytes.utf8.encode("fraud")],
+  //     program.programId
+  //   );
+  //   let tx = await program.rpc.createPack(authPdaBump, {
+  //     accounts: {
+  //       mintAuth: _fraudPDA
+  //     }
+  //   })
+  // });
+
+
   /*
+
+
+
     //this doesn't work bc the pda is not signing --- good
     await TokenMint.setAuthority(
       mint.publicKey,

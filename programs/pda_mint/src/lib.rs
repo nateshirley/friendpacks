@@ -39,6 +39,7 @@ pub mod pda_mint {
         //must create before joining
         let mint_supply = Mint::unpack(&ctx.accounts.mint.to_account_info().data.borrow())?.supply;
         if mint_supply < 1 {
+            msg!("must create before joining");
             return Err(ErrorCode::JoinBeforeCreate.into());
         }
 
