@@ -17,13 +17,14 @@ describe('pda_mint', () => {
   let rent = null;
   let authPda = null;
   let authPdaBump = null;
+  let secondMember = Keypair.generate();
 
   it('config', async () => {
     const _rent = await provider.connection.getMinimumBalanceForRentExemption(
       MintLayout.span
     );
     rent = _rent;
-    
+
     let [_authPDA, _bump] = await PublicKey.findProgramAddress(
       //gets a determinstic pda address using this string and the program id
       [anchor.utils.bytes.utf8.encode("authority")],
@@ -33,6 +34,11 @@ describe('pda_mint', () => {
     authPdaBump = _bump
 
     payerTokenAccount = await getAssociatedTokenAccountAddress(payer.publicKey, mint.publicKey);
+
+    await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(secondMember.publicKey, (5 * anchor.web3.LAMPORTS_PER_SOL)),
+      "confirmed"
+    );
   });
 
 
@@ -76,11 +82,6 @@ describe('pda_mint', () => {
   });
 
   it('join the pack with a different user', async () => {
-    let secondMember = Keypair.generate();
-    await provider.connection.confirmTransaction(
-      await provider.connection.requestAirdrop(secondMember.publicKey, 50000000000),
-      "confirmed"
-    );
     let secondTokenAccount = await getAssociatedTokenAccountAddress(secondMember.publicKey, mint.publicKey);
 
     //mint another

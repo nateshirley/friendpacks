@@ -1,5 +1,5 @@
-use anchor_lang::{prelude::*, solana_program::{program::invoke_signed, program_pack::Pack}};
-use spl_token::{instruction::{mint_to_checked, AuthorityType}, state::Mint};
+use anchor_lang::{prelude::*, solana_program::{program_pack::Pack}};
+use spl_token::{instruction::{AuthorityType}, state::Mint};
 use anchor_spl::token::{self, Token, Mint as MintAccount, MintTo, TokenAccount, SetAuthority};
 
 //i cleaned up from the git ignore
