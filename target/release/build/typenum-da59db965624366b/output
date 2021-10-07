@@ -1,2 +1,0 @@
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/nathanshirley/pda_mint/target/release/build/typenum-da59db965624366b/out/consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=/Users/nathanshirley/pda_mint/target/release/build/typenum-da59db965624366b/out/op.rs
