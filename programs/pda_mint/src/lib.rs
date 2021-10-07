@@ -1,6 +1,8 @@
-use anchor_lang::{prelude::*, solana_program::{program_pack::Pack}};
+use anchor_lang::{prelude::*, solana_program::{program::{invoke_signed}, program_pack::Pack}};
 use spl_token::{instruction::{AuthorityType}, state::Mint};
 use anchor_spl::token::{self, Token, Mint as MintAccount, MintTo, TokenAccount, SetAuthority};
+use spl_token_metadata::instruction::{mint_new_edition_from_master_edition_via_token};
+use token_metadata_local::{create_metadata_accounts};
 
 //i cleaned up from the git ignore
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
@@ -10,13 +12,58 @@ const AUTH_PDA_SEED: &[u8] = b"authority";
 pub mod pda_mint {
     use super::*;
     pub fn create_pack(ctx: Context<CreatePack>, _auth_pda_bump: u8) -> ProgramResult {
-        //do the metadata
-
         let (_pda, bump_seed) = Pubkey::find_program_address(&[AUTH_PDA_SEED], ctx.program_id);
         let seeds = &[&AUTH_PDA_SEED[..], &[bump_seed]];
 
         //make sure the pda has mint authority and freeze authority before minting
         verify_incoming_mint(ctx.accounts.mint.to_account_info(), _pda)?;
+
+        //do the metadata
+        //https://github.com/metaplex-foundation/metaplex/blob/master/rust/token-metadata/program/src/instruction.rs#L57
+        let metadata_infos = vec![
+            ctx.accounts.metadata.clone(),
+            ctx.accounts.mint.to_account_info(),
+            ctx.accounts.mint_auth.to_account_info(),  //mint authority for mint
+            ctx.accounts.owner.to_account_info(),
+            ctx.accounts.mint_auth.to_account_info(), //update authority for metadata
+            ctx.accounts.system_program.to_account_info(),
+            ctx.accounts.rent.to_account_info(),
+        ];
+        let name = String::from("johnny rox");
+        let symbol = String::from("JRX");
+        let uri = String::from("https://arweave.net/sdunsHkfEhBVi95sGc5z_eepWJcHj2jc2iRT8DCpti8");
+        let points: u16 = 100;
+        let update_authority_is_signer = true;
+        let is_mutable = false;
+        let creator = ctx.accounts.mint_auth.clone();
+        let creators: Vec<token_metadata_local::Creator> =
+        vec![token_metadata_local::Creator {
+            address: creator.key(),
+            verified: true,
+            share: 100,
+        }];
+        //https://github.com/metaplex-foundation/metaplex/tree/master/rust/token-metadata/program
+        let create_metadata_instruction = create_metadata_accounts(
+            *ctx.accounts.token_metadata_program.key,
+            *ctx.accounts.metadata.key,
+            ctx.accounts.mint.key(),
+            ctx.accounts.mint_auth.key(),
+            ctx.accounts.owner.key(),
+            ctx.accounts.mint_auth.key(),
+            name,
+            symbol,
+            uri,
+            Some(creators),
+            points,
+            update_authority_is_signer,
+            is_mutable,
+        );
+        invoke_signed(
+            &create_metadata_instruction,
+            metadata_infos.as_slice(),
+            &[&seeds[..]],
+        )?;
+
 
         //mint to the user's token account
         let cpi_accounts = MintTo {
@@ -77,10 +124,18 @@ pub struct CreatePack<'info> {
     #[account(
         mut,
         has_one = owner
-    )]
+    )] //payer from metadata is owner here
     token_account: Account<'info, TokenAccount>,
     owner: Signer<'info>,
+    //METADATA
+    #[account(mut)]
+    metadata: AccountInfo<'info>,
+    //PROGRAMS
+    system_program: Program<'info, System>,
     token_program: Program<'info, Token>,
+    #[account(address = spl_token_metadata::id())]
+    token_metadata_program: AccountInfo<'info>,
+    rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]

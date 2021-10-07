@@ -1,6 +1,6 @@
 const anchor = require('@project-serum/anchor');
 const { rpc } = require('@project-serum/anchor/dist/cjs/utils');
-const { Keypair, PublicKey, TransactionInstruction, SystemProgram } = anchor.web3;
+const { Keypair, PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } = anchor.web3;
 const SPL = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token, MintLayout, AuthorityType }  = SPL;
 
@@ -18,6 +18,8 @@ describe('pda_mint', () => {
   let authPda = null;
   let authPdaBump = null;
   let secondMember = Keypair.generate();
+  let metadata = null;
+
 
   it('config', async () => {
     const _rent = await provider.connection.getMinimumBalanceForRentExemption(
@@ -39,17 +41,23 @@ describe('pda_mint', () => {
       await provider.connection.requestAirdrop(secondMember.publicKey, (5 * anchor.web3.LAMPORTS_PER_SOL)),
       "confirmed"
     );
+    metadata = await getMetadataAddress(mint.publicKey);
+    console.log(metadata, "METATADAFAT");
   });
 
-
   it('create a pack', async () => {
+    //new accounts are metadata, system pro, metadata pro, rent
     const tx = await program.rpc.createPack(authPdaBump, {
       accounts: {
         mint: mint.publicKey,
         mintAuth: authPda,
         tokenAccount: payerTokenAccount,
         owner: payer.publicKey,
+        metadata: metadata,
+        systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+        rent: SYSVAR_RENT_PUBKEY,
       }, instructions: [
         //this requires the mint to sign 
         SystemProgram.createAccount({
@@ -81,6 +89,7 @@ describe('pda_mint', () => {
     console.log("Your transaction signature", tx);
   });
 
+  
   it('join the pack with a different user', async () => {
     let secondTokenAccount = await getAssociatedTokenAccountAddress(secondMember.publicKey, mint.publicKey);
 
@@ -106,6 +115,7 @@ describe('pda_mint', () => {
     });
     console.log("Your transaction signature", again);
   });
+  
 
   it('see if it worked', async () => {
     let TokenMint = new Token(
@@ -121,6 +131,7 @@ describe('pda_mint', () => {
     let mintInfo = await TokenMint.getMintInfo();
     console.log("the mint's supply: ", mintInfo.supply);
   });
+
 });
 
 
@@ -157,6 +168,27 @@ async function getAssociatedTokenAccountAddress(owner, mint) {
     )
   )[0];
 };
+async function getMetadataAddress(
+  mintPubkey
+) {
+  return (
+    await anchor.web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from("metadata"),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+        mintPubkey.toBuffer(),
+      ],
+      TOKEN_METADATA_PROGRAM_ID
+    )
+  )[0];
+};
+
+const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+);
+// const ASSOCIATED_TOKEN_ACCOUNT_PROGRAM = new anchor.web3.PublicKey(
+//   "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+// );
 
 
   //test to show that you can't create a pack with a pda that is not the authority pda of the program
