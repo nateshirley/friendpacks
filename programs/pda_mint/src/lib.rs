@@ -1,22 +1,28 @@
-use anchor_lang::{prelude::*, solana_program::{program::{invoke_signed}, program_pack::Pack}};
+use anchor_lang::{prelude::*, solana_program::{program::{invoke_signed}, borsh::try_from_slice_unchecked, program_pack::Pack}};
 use spl_token::{instruction::{AuthorityType}, state::Mint};
 use anchor_spl::token::{self, Token, Mint as MintAccount, MintTo, TokenAccount, SetAuthority};
-use spl_token_metadata::instruction::{mint_new_edition_from_master_edition_via_token};
+use spl_token_metadata::{instruction::{update_metadata_accounts}, state::Metadata};
 use token_metadata_local::{create_metadata_accounts};
 
-//i cleaned up from the git ignore
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("85185DcWJF1fg7qnAjGnXVf6RU9fPKxCagJ7w1rFxkps");
 const AUTH_PDA_SEED: &[u8] = b"authority";
+const MET_PDA_SEED: &[u8] = b"metadata";
 
 #[program]
 pub mod pda_mint {
     use super::*;
-    pub fn create_pack(ctx: Context<CreatePack>, _auth_pda_bump: u8) -> ProgramResult {
+    pub fn create_pack(ctx: Context<CreatePack>, _auth_pda_bump: u8, meta_config: MetaConfig) -> ProgramResult {
         let (_pda, bump_seed) = Pubkey::find_program_address(&[AUTH_PDA_SEED], ctx.program_id);
         let seeds = &[&AUTH_PDA_SEED[..], &[bump_seed]];
 
-        //make sure the pda has mint authority and freeze authority before minting
+        //make sure the pda has mint authority and freeze authority, decimal 0 before minting
         verify_incoming_mint(ctx.accounts.mint.to_account_info(), _pda)?;
+
+        let mint_supply = Mint::unpack(&ctx.accounts.mint.to_account_info().data.borrow())?.supply;
+        if mint_supply > 0 {
+            msg!("must create with supply 0");
+            return Err(ErrorCode::NonzeroSupplyCreation.into());
+        }
 
         //do the metadata
         //https://github.com/metaplex-foundation/metaplex/blob/master/rust/token-metadata/program/src/instruction.rs#L57
@@ -29,16 +35,15 @@ pub mod pda_mint {
             ctx.accounts.system_program.to_account_info(),
             ctx.accounts.rent.to_account_info(),
         ];
-        let name = String::from("johnny rox");
-        let symbol = String::from("JRX");
-        let uri = String::from("https://arweave.net/sdunsHkfEhBVi95sGc5z_eepWJcHj2jc2iRT8DCpti8");
-        let points: u16 = 100;
+        let name = meta_config.name;
+        let symbol = meta_config.symbol;
+        let uri = meta_config.uri;
+        let points: u16 = 0;
         let update_authority_is_signer = true;
-        let is_mutable = false;
-        let creator = ctx.accounts.mint_auth.clone();
+        let is_mutable = true;
         let creators: Vec<token_metadata_local::Creator> =
         vec![token_metadata_local::Creator {
-            address: creator.key(),
+            address: ctx.accounts.mint_auth.key(),
             verified: true,
             share: 100,
         }];
@@ -64,7 +69,6 @@ pub mod pda_mint {
             &[&seeds[..]],
         )?;
 
-
         //mint to the user's token account
         let cpi_accounts = MintTo {
             mint: ctx.accounts.mint.to_account_info(),
@@ -76,7 +80,6 @@ pub mod pda_mint {
 
         Ok(())
     }
-    //pub fn join_pack
     pub fn join_pack(ctx: Context<JoinPack>, _auth_pda_bump: u8) -> ProgramResult {
         //charge a small fee? -- idk maybe not on this one. enough to discourage u from doing it for no reason. idk
         //make sure the supply is > 0 before minting. you have to call create_pack before joining
@@ -106,9 +109,94 @@ pub mod pda_mint {
         if mint_supply > 2 {
             freeze_mint_supply(ctx, seeds)?;
         }
-        
         Ok(())
     }
+    pub fn change_name_and_symbol(ctx: Context<NewName>, _auth_pda_bump: u8, new_name: String, new_symbol: String) -> ProgramResult {
+        //what i need to know
+        //signer owns the token account
+        //token account matches the mint
+        //mint is a pack mint
+        //metadata is the metadata acct for the mint passed in
+        //that's it 
+
+        //get the data from the existing account
+        //copy it with name change
+        //put it back in
+        assert_metadata_matches_mint(&ctx.accounts.token_metadata_program, &ctx.accounts.mint, &ctx.accounts.metadata)?;
+      
+        let metadata: Metadata = try_from_slice_unchecked(&ctx.accounts.metadata.data.borrow()).unwrap();
+        let mut new_data = metadata.data.clone();
+        new_data.name = new_name;
+        new_data.symbol = new_symbol;
+
+        let new_name_instruction = update_metadata_accounts(
+            ctx.accounts.token_metadata_program.key(),
+            ctx.accounts.metadata.key(),
+            ctx.accounts.mint_auth.key(),
+            None,
+            Some(new_data),
+            None,
+        );
+        let new_name_infos = vec![
+            ctx.accounts.metadata.clone(),
+            ctx.accounts.mint_auth.to_account_info()
+        ];
+        let (_pda, bump_seed) = Pubkey::find_program_address(&[AUTH_PDA_SEED], ctx.program_id);
+        let seeds = &[&AUTH_PDA_SEED[..], &[bump_seed]];
+        invoke_signed(
+            &new_name_instruction, 
+            new_name_infos.as_slice(), 
+            &[&seeds[..]]
+        )?;
+
+        Ok(())
+    }
+}
+
+
+pub fn assert_metadata_matches_mint(token_metadata_program: &AccountInfo, mint: &Account<MintAccount>, metadata: &AccountInfo) -> ProgramResult {
+    let (expected_metadata, _bump) = Pubkey::find_program_address(
+        &[MET_PDA_SEED, token_metadata_program.key().as_ref(), mint.key().as_ref()], 
+        token_metadata_program.key
+    );
+    if expected_metadata != metadata.key() {
+        msg!("metadata is not associated with the mint passed");
+        return Err(ErrorCode::MetadataMismatch.into());
+    } else {
+        Ok(())
+    }
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+pub struct MetaConfig {
+    pub name: String,
+    pub symbol: String,
+    pub uri: String
+}
+
+
+#[derive(Accounts)]
+#[instruction(_auth_pda_bump: u8)]
+pub struct NewName<'info> {
+    #[account(mut)]
+    mint: Account<'info, MintAccount>,
+    #[account(
+        seeds = [AUTH_PDA_SEED], 
+        bump = _auth_pda_bump,
+    )]
+    mint_auth: UncheckedAccount<'info>,
+    #[account(
+        has_one = owner
+    )] //enforce owner of token account is the signer
+    token_account: Account<'info, TokenAccount>,
+    owner: Signer<'info>,
+    //METADATA
+    #[account(mut)]
+    metadata: AccountInfo<'info>,
+    //PROGRAMS
+    system_program: Program<'info, System>,
+    #[account(address = spl_token_metadata::id())]
+    token_metadata_program: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
@@ -124,7 +212,7 @@ pub struct CreatePack<'info> {
     #[account(
         mut,
         has_one = owner
-    )] //payer from metadata is owner here
+    )] //enforce owner of token account is the signer
     token_account: Account<'info, TokenAccount>,
     owner: Signer<'info>,
     //METADATA
@@ -170,6 +258,12 @@ fn verify_incoming_mint(mint: AccountInfo, pda: Pubkey) -> ProgramResult {
         msg!("no mint control");
         return Err(ErrorCode::NoMintControl.into());
     }
+     //if mint authority on the mint is not the pda, don't mint
+     let decimals = Mint::unpack(&mint.data.borrow())?.decimals;
+     if decimals != 0 {
+         msg!("decimals must be 0");
+         return Err(ErrorCode::NonzeroDecimal.into());
+     }
      Ok(())
 }
 
@@ -213,6 +307,12 @@ pub enum ErrorCode {
     NoFreezeControl,
     #[msg("cannot join a pack with mint supply 0. create pack first")]
     JoinBeforeCreate,
+    #[msg("pack mints must have decimal zero")]
+    NonzeroDecimal,
+    #[msg("new packs must have zero supply")]
+    NonzeroSupplyCreation,
+    #[msg("metadata not attached to the mint passed")]
+    MetadataMismatch,
 }
 
 

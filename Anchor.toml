@@ -1,5 +1,5 @@
 [programs.localnet]
-pda_mint = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+pda_mint = "85185DcWJF1fg7qnAjGnXVf6RU9fPKxCagJ7w1rFxkps"
 
 [registry]
 url = "https://anchor.projectserum.com"

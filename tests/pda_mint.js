@@ -19,6 +19,7 @@ describe('pda_mint', () => {
   let authPdaBump = null;
   let secondMember = Keypair.generate();
   let metadata = null;
+  let TokenMint = null;
 
 
   it('config', async () => {
@@ -41,13 +42,18 @@ describe('pda_mint', () => {
       await provider.connection.requestAirdrop(secondMember.publicKey, (5 * anchor.web3.LAMPORTS_PER_SOL)),
       "confirmed"
     );
-    metadata = await getMetadataAddress(mint.publicKey);
-    console.log(metadata, "METATADAFAT");
+    let [_metadataAddress, _metadataBump] = await getMetadataAddress(mint.publicKey);
+    metadata = _metadataAddress;
   });
 
   it('create a pack', async () => {
-    //new accounts are metadata, system pro, metadata pro, rent
-    const tx = await program.rpc.createPack(authPdaBump, {
+    const metaConfig = {
+      name: "Grump Sleepwalker",
+      symbol: "GRMP",
+      uri: "https://arweave.net/O8x2J3gyUmRLm5ZRrUsP3anJiGst5Y4FYn2Wugbktls"
+    };
+
+    const tx = await program.rpc.createPack(authPdaBump, metaConfig, {
       accounts: {
         mint: mint.publicKey,
         mintAuth: authPda,
@@ -86,10 +92,30 @@ describe('pda_mint', () => {
         payer, mint
       ]
     });
-    console.log("Your transaction signature", tx);
+    console.log("create pack tx ", tx);
   });
 
-  
+  it('try to change the name', async () => {
+    let newName = "Grumpy Pants John"
+    let newSymbol = "OTPHJ"
+    const tx = await program.rpc.changeNameAndSymbol(authPdaBump, newName, newSymbol, {
+      accounts: {
+        mint: mint.publicKey,
+        mintAuth: authPda,
+        tokenAccount: payerTokenAccount,
+        owner: payer.publicKey,
+        metadata: metadata,
+        systemProgram: SystemProgram.programId,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      }, 
+      signers: [
+        payer
+      ]
+    });
+    console.log("change name tx: ", tx);
+  });
+
+  /*
   it('join the pack with a different user', async () => {
     let secondTokenAccount = await getAssociatedTokenAccountAddress(secondMember.publicKey, mint.publicKey);
 
@@ -115,15 +141,17 @@ describe('pda_mint', () => {
     });
     console.log("Your transaction signature", again);
   });
+  */
   
 
   it('see if it worked', async () => {
-    let TokenMint = new Token(
+    let _TokenMint = new Token(
       provider.connection,
       mint.publicKey,
       TOKEN_PROGRAM_ID,
       payer
     );
+    TokenMint = _TokenMint
     let info = await TokenMint.getAccountInfo(payerTokenAccount);
     //console.log(info.amount)
     let balance = await provider.connection.getTokenAccountBalance(payerTokenAccount);
@@ -131,6 +159,21 @@ describe('pda_mint', () => {
     let mintInfo = await TokenMint.getMintInfo();
     console.log("the mint's supply: ", mintInfo.supply);
   });
+
+  // it("transfer the new mint", async () => {
+  //   const myWalletPubkey = new PublicKey("D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU");
+  //   const payerTokenAccountAddress = await getAssociatedTokenAccountAddress(payer.publicKey, mint.publicKey);
+  
+  //   let myTokenAccountAddress = await TokenMint.createAssociatedTokenAccount(myWalletPubkey);
+  //   let tx = await TokenMint.transfer(
+  //     payerTokenAccountAddress,
+  //     myTokenAccountAddress,
+  //     payer.publicKey,
+  //     [payer],
+  //     1
+  //   );
+  //   console.log(tx)
+  // });
 
 });
 
@@ -180,15 +223,13 @@ async function getMetadataAddress(
       ],
       TOKEN_METADATA_PROGRAM_ID
     )
-  )[0];
+  );
 };
 
 const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
-// const ASSOCIATED_TOKEN_ACCOUNT_PROGRAM = new anchor.web3.PublicKey(
-//   "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-// );
+
 
 
   //test to show that you can't create a pack with a pda that is not the authority pda of the program
@@ -204,8 +245,6 @@ const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
   //     }
   //   })
   // });
-
-
   /*
 
 
