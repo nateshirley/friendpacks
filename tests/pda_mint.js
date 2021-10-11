@@ -1,8 +1,11 @@
 const anchor = require('@project-serum/anchor');
-const { rpc } = require('@project-serum/anchor/dist/cjs/utils');
-const { Keypair, PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } = anchor.web3;
+const { rpc, publicKey } = require('@project-serum/anchor/dist/cjs/utils');
+const { Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } = anchor.web3;
 const SPL = require("@solana/spl-token");
-const { TOKEN_PROGRAM_ID, Token, MintLayout, AuthorityType }  = SPL;
+const { TOKEN_PROGRAM_ID, Token, MintLayout }  = SPL;
+const { getSquadMintKeysForWallet, getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID, getSquadMintAccountsForWallet, fetchAllPackMintAccounts, getMembersForPackMint, isWalletPackMember, isPackEligibleForNewMembers, buildConnectedMembersDict } = require('./modules/queries.js');
+const nameService = require('@solana/spl-name-service');
+const BN = require('bn.js');
 
 describe('pda_mint', () => {
 
@@ -20,6 +23,9 @@ describe('pda_mint', () => {
   let secondMember = Keypair.generate();
   let metadata = null;
   let TokenMint = null;
+  //cli wallet
+  let myWalletPubkey = new PublicKey("5J8jLVz5YY5uc9sJuWtx42VVMUanLGYWoPXMRu7GsNEJ");
+
 
 
   it('config', async () => {
@@ -42,33 +48,78 @@ describe('pda_mint', () => {
       await provider.connection.requestAirdrop(secondMember.publicKey, (5 * anchor.web3.LAMPORTS_PER_SOL)),
       "confirmed"
     );
+
     let [_metadataAddress, _metadataBump] = await getMetadataAddress(mint.publicKey);
     metadata = _metadataAddress;
   });
 
   it('get mint owners', async () => {
-    let mint = new PublicKey("5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ");
+    let samplePackMint = new PublicKey("5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ");
+    // let members = await getMembersForPackMint(mint, provider.connection);
+    let [isMember, members] = await isWalletPackMember(myWalletPubkey, samplePackMint, provider.connection);
+    console.log("is wallet member? ", isMember);
+    console.log("number of members: ", members.length);
 
-    let _TokenMint = new Token(
-      provider.connection,
-      mint.publicKey,
-      TOKEN_PROGRAM_ID,
-      payer
-    );
-    TokenMint = _TokenMint
-    let largestAccounts = await provider.connection.getTokenLargestAccounts(mint);
-    let holders = Array.from(largestAccounts.value);
-    //console.log(holders);
-    //gets all owners into pubkey array
-    let owners = [];
-    holders.forEach(async function(holder) {
-      let accountInfo = await TokenMint.getAccountInfo(holder.address);
-      let owner = accountInfo.owner;
-      console.log(owner)
-      owners.push(owner);
-    });
+    //could also do mint authority but fuck it 
+    let isPackFull = await isPackEligibleForNewMembers(samplePackMint, provider.connection);
+    console.log("is pack full?", isPackFull);
   });
 
+  //i need to pass this like a map of all the user's squad connections
+  //maybe i could do like memberKey -> packMintKey
+
+  it('get transactions for program', async () => {
+    let altSampleKey = new PublicKey("HibUDZHM1rVeLzevaUb1vBuWFfGpxtisU36Un6V21pyR");
+    //this is an object where connectedMembers[member] = [sharedPackMints]
+    let connectedMembers = await buildConnectedMembersDict(altSampleKey, provider.connection);
+    console.log(connectedMembers);
+
+    let sharedPacks = connectedMembers[altSampleKey];
+    console.log(sharedPacks);
+    let otherShared = connectedMembers[myWalletPubkey];
+    console.log(otherShared);
+
+    let sharedActivity = [];
+
+    //find all transactions where a connected member signed. append the packmints for that activity to the array
+    let signatures = await provider.connection.getConfirmedSignaturesForAddress2(program.programId, {limit: 40}, "confirmed");
+    await Promise.all(signatures.map(async (signatureInfo) => {
+      let txResponse = await provider.connection.getTransaction(signatureInfo.signature, { commitment: "confirmed" });
+      let message = txResponse.transaction.message;
+      //account: PublicKey
+      message.accountKeys.map((account, index) => {
+        if (message.isAccountSigner(index)) {
+          let sharedPacks = connectedMembers[account];
+          if(Boolean(sharedPacks)) {
+            sharedPacks.forEach((packMint) => {
+              //im in a pack with the main wallet (provider), and it signs like every transaction. 
+              console.log("shared activity on mint: ", packMint);
+              sharedActivity.push(packMint);
+            });
+          }
+        }
+      });
+    }));
+
+
+
+    //let txResponse = await provider.connection.getTransaction("2Exmb8R2jjqJA75ygho1Fi7ZFb4n4vJhQi4Jxa4gp3MYm8p4fmoE16EfB1RWvZf5z2Kb1emFLKfmn4bgdkPmmFE", { commitment: "confirmed" });
+    //let message = txResponse.transaction.message;
+    //console.log(message);
+    //console.log(message.accountKeys);
+    // message.accountKeys.map((account, index) => {
+    //   if (message.isAccountSigner(index)) {
+    //     console.log("is SIGNER");
+    //     console.log(account.toBase58());
+    //   }
+    // });
+
+  });
+
+
+ 
+
+  /*
   
   it('create a pack', async () => {
     const metaConfig = {
@@ -120,102 +171,6 @@ describe('pda_mint', () => {
   });
   
 
-  it('get token accounts owned by my test owner address', async () => {
-
-
-    //getting all token accounts for a wallet
-    let myWalletPubkey = new PublicKey("5J8jLVz5YY5uc9sJuWtx42VVMUanLGYWoPXMRu7GsNEJ");
-    let squadMints = await getSquadMints(myWalletPubkey);
-
-    
-    console.log("********");
-    console.log(squadMints.length);
-
-
-
-  });
-
-  async function mintHasVerifiedCreator(mintKey) {
-    let [metadataAddress, _bump] = await getMetadataAddress(mintKey);
-    let metadataInfo = await provider.connection.getAccountInfo(metadataAddress);
-    if (Boolean(metadataInfo)) {
-      let firstCreator = new PublicKey(metadataInfo.data.slice(326,358));
-      let isFirstCreatorVerified = metadataInfo.data[358];
-      const expectedCreator = authPda;
-      if (expectedCreator.equals(firstCreator) && isFirstCreatorVerified) {
-        console.log("the creator is good");
-        return true
-      } 
-    }
-    return false
-  }
-  async function filterResponsesForSquadMints(responses) {
-    responses = Array.from(responses);
-    let squadMints = [];
-    await Promise.all(responses.map(async (value) => {
-      let mintKey = new PublicKey(value.account.data.slice(0,32));
-      if (await mintHasVerifiedCreator(mintKey)) {
-        squadMints.push(mintKey);        
-      }
-    }));
-    return squadMints
-  }
-
-  async function getSquadMints(walletPubkey) {
-    walletPubkey = new PublicKey(walletPubkey);
-    if (Boolean(walletPubkey)) {
-      let fetch = await provider.connection.getTokenAccountsByOwner(walletPubkey, {
-        programId: TOKEN_PROGRAM_ID
-      });
-      let responses = Array.from(fetch.value);
-      let squadMints = await filterResponsesForSquadMints(responses);
-      return squadMints
-    }
-  }
-  
-  //so this gets all the pack mints. i need to get the pack mints for a specfic wallet
-  //hmmm fuck
-  /* 
-  it('get program accounts by ', async () => {
-    //this gets the metadata accounts w/ the  (me)
-    //from the metadata pda, you can get the mint pubkey, and then you're chilling
-    let 58 = authPda.toBase58();
-    //https://solana-labs.github.io/solana-web3.js/modules.html#MemcmpFilter
-    let config = {
-      filters: [
-        {
-          dataSize: 679
-        },
-        { memcmp: 
-          {
-            bytes: 58, 
-            offset: 326
-          } 
-        },
-      ]
-    }   
-    console.log("STARTING FETCH ");
-    //https://solana-labs.github.io/solana-web3.js/classes/Connection.html#getProgramAccounts
-    let accounts = await provider.connection.getProgramAccounts(
-      TOKEN_METADATA_PROGRAM_ID,
-      config
-    );
-    accounts.forEach(async function (account, index) {
-      console.log(account.pubkey.toBase58());
-    });
-    //so i definitely made this account. okay this is the right account. it's the metadata pda. perfect hell yeah
-    //https://solscan.io/account/33GxVcZZ61ZY7qL78GgrE2RrZeTAFz8LcbNhmcEqJcRR?cluster=devnet
-  });
-  */
-
-
-
-
-  /*
-
- 
-    
-
   it('join the pack with a different user', async () => {
     let secondTokenAccount = await getAssociatedTokenAccountAddress(secondMember.publicKey, mint.publicKey);
 
@@ -239,9 +194,59 @@ describe('pda_mint', () => {
         secondMember
       ]
     });
-    console.log("Your transaction signature", again);
+    console.log("second join sig", again);
   });
-*/
+  */
+
+
+
+  /*
+  it('get token accounts owned by my test owner address', async () => {
+    console.log("********");
+
+    let squadMints = await getSquadMintAccountsForWallet(myWalletPubkey, provider.connection);
+    console.log("number of pack mints owned by my wallet", squadMints.length);
+
+    let accounts = await fetchAllPackMintAccounts(provider.connection);
+    console.log("number of pack mints in total, ", accounts.length)
+  });
+  */
+
+   /*
+  it('name service', async() => {
+
+    let nameAccount = new PublicKey("xbgtybr9MrMhSvzySvkxmZZ4eFk8YRkFgjrRfryZJDc");
+    let fetch = await nameService.NameRegistryState.retrieve(provider.connection, nameAccount);
+    console.log(fetch);
+
+    //i know i could do a custom one for each account
+    //would have to query getprogramAccounts for each tho. beat
+    
+    // let ins = await nameService.createNameRegistry(
+    //   provider.connection,
+    //   "swatchbuckler",
+    //   1000,
+    //   payer.publicKey,
+    //   payer.publicKey
+    // );
+    // let tx = new Transaction().add(ins);
+    // let signature = await anchor.web3.sendAndConfirmTransaction(
+    //   provider.connection,
+    //   tx,
+    //   [provider.wallet.payer],
+    // ); 
+    // console.log(signature);
+    // console.log(ins);
+  });
+  */
+
+
+
+  
+ 
+    
+
+
   
 
   /*
@@ -308,59 +313,9 @@ describe('pda_mint', () => {
 });
 
 
-function createAssociatedTokenAccountInstruction(
-  mint,
-  associatedAccount,
-  owner,
-  payer,
-) {
-  const data = Buffer.alloc(0);
-  let associatedProgramId = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
-  let programId = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
-  let keys = [
-    {pubkey: payer, isSigner: true, isWritable: true},
-    {pubkey: associatedAccount, isSigner: false, isWritable: true},
-    {pubkey: owner, isSigner: false, isWritable: false},
-    {pubkey: mint, isSigner: false, isWritable: false},
-    {pubkey: SystemProgram.programId, isSigner: false, isWritable: false},
-    {pubkey: programId, isSigner: false, isWritable: false},
-    {pubkey: anchor.web3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false},
-  ];
-  return new TransactionInstruction({
-    keys,
-    programId: associatedProgramId,
-    data,
-  });
-}
-async function getAssociatedTokenAccountAddress(owner, mint) {
-  let associatedProgramId = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
-  return (
-    await PublicKey.findProgramAddress(
-      [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-      associatedProgramId
-    )
-  )[0];
-};
-async function getMetadataAddress(
-  mintPubkey
-) {
-  return (
-    await anchor.web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from("metadata"),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        mintPubkey.toBuffer(),
-      ],
-      TOKEN_METADATA_PROGRAM_ID
-    )
-  );
-};
-
-const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-);
 
 
+//random tests ***************
 
   //test to show that you can't create a pack with a pda that is not the authority pda of the program
   // it('try the create pack', async () => {
@@ -376,7 +331,6 @@ const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
   //   })
   // });
   /*
-
 
 
     //this doesn't work bc the pda is not signing --- good
