@@ -17,6 +17,7 @@ pub mod pda_mint {
 
         //make sure the pda has mint authority and freeze authority, decimal 0 before minting
         verify_incoming_mint(ctx.accounts.mint.to_account_info(), _pda)?;
+        assert_metadata_matches_mint(&ctx.accounts.token_metadata_program, &ctx.accounts.mint, &ctx.accounts.metadata)?;
 
         let mint_supply = Mint::unpack(&ctx.accounts.mint.to_account_info().data.borrow())?.supply;
         if mint_supply > 0 {
@@ -77,7 +78,6 @@ pub mod pda_mint {
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
         token::mint_to(CpiContext::new_with_signer(cpi_program, cpi_accounts, &[&seeds[..]]), 1)?;
-
         Ok(())
     }
     pub fn join_pack(ctx: Context<JoinPack>, _auth_pda_bump: u8) -> ProgramResult {
@@ -111,13 +111,12 @@ pub mod pda_mint {
         }
         Ok(())
     }
-    pub fn change_name_and_symbol(ctx: Context<NewName>, _auth_pda_bump: u8, new_name: String, new_symbol: String) -> ProgramResult {
+    pub fn update_pack_metadata(ctx: Context<NewName>, _auth_pda_bump: u8, new_metadata: NewMetadata) -> ProgramResult {
         //what i need to know
         //signer owns the token account
         //token account matches the mint
         //mint is a pack mint
         //metadata is the metadata acct for the mint passed in
-        //that's it 
 
         //get the data from the existing account
         //copy it with name change
@@ -126,8 +125,15 @@ pub mod pda_mint {
       
         let metadata: Metadata = try_from_slice_unchecked(&ctx.accounts.metadata.data.borrow()).unwrap();
         let mut new_data = metadata.data.clone();
-        new_data.name = new_name;
-        new_data.symbol = new_symbol;
+        if let Some(name) = new_metadata.name {
+            new_data.name = name;
+        }
+        if let Some(symbol) = new_metadata.symbol {
+            new_data.symbol = symbol;
+        }
+        if let Some(uri) = new_metadata.uri {
+            new_data.uri = uri;
+        }
 
         let new_name_instruction = update_metadata_accounts(
             ctx.accounts.token_metadata_program.key(),
@@ -148,11 +154,9 @@ pub mod pda_mint {
             new_name_infos.as_slice(), 
             &[&seeds[..]]
         )?;
-
         Ok(())
     }
 }
-
 
 pub fn assert_metadata_matches_mint(token_metadata_program: &AccountInfo, mint: &Account<MintAccount>, metadata: &AccountInfo) -> ProgramResult {
     let (expected_metadata, _bump) = Pubkey::find_program_address(
@@ -174,6 +178,12 @@ pub struct MetaConfig {
     pub uri: String
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+pub struct NewMetadata {
+    pub name: Option<String>,
+    pub symbol: Option<String>,
+    pub uri: Option<String>,
+}
 
 #[derive(Accounts)]
 #[instruction(_auth_pda_bump: u8)]
@@ -190,10 +200,8 @@ pub struct NewName<'info> {
     )] //enforce owner of token account is the signer
     token_account: Account<'info, TokenAccount>,
     owner: Signer<'info>,
-    //METADATA
     #[account(mut)]
     metadata: AccountInfo<'info>,
-    //PROGRAMS
     system_program: Program<'info, System>,
     #[account(address = spl_token_metadata::id())]
     token_metadata_program: AccountInfo<'info>,
@@ -215,10 +223,8 @@ pub struct CreatePack<'info> {
     )] //enforce owner of token account is the signer
     token_account: Account<'info, TokenAccount>,
     owner: Signer<'info>,
-    //METADATA
     #[account(mut)]
     metadata: AccountInfo<'info>,
-    //PROGRAMS
     system_program: Program<'info, System>,
     token_program: Program<'info, Token>,
     #[account(address = spl_token_metadata::id())]
@@ -246,19 +252,19 @@ pub struct JoinPack<'info> {
 }
 
 fn verify_incoming_mint(mint: AccountInfo, pda: Pubkey) -> ProgramResult {
-    //if freeze authority on the mint is not the pda, don't mint
+    //freeze authority on the mint must be the program's auth pda
     let freeze_authority = Mint::unpack(&mint.data.borrow())?.freeze_authority.unwrap();
     if freeze_authority != pda {
         msg!("no freeze control");
         return Err(ErrorCode::NoFreezeControl.into());
     }
-    //if mint authority on the mint is not the pda, don't mint
+    //mint authority on the mint must be the program's auth pda
     let mint_authority = Mint::unpack(&mint.data.borrow())?.mint_authority.unwrap();
     if mint_authority != pda {
         msg!("no mint control");
         return Err(ErrorCode::NoMintControl.into());
     }
-     //if mint authority on the mint is not the pda, don't mint
+     //mint must have decimal 0
      let decimals = Mint::unpack(&mint.data.borrow())?.decimals;
      if decimals != 0 {
          msg!("decimals must be 0");

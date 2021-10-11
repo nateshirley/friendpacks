@@ -46,6 +46,30 @@ describe('pda_mint', () => {
     metadata = _metadataAddress;
   });
 
+  it('get mint owners', async () => {
+    let mint = new PublicKey("5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ");
+
+    let _TokenMint = new Token(
+      provider.connection,
+      mint.publicKey,
+      TOKEN_PROGRAM_ID,
+      payer
+    );
+    TokenMint = _TokenMint
+    let largestAccounts = await provider.connection.getTokenLargestAccounts(mint);
+    let holders = Array.from(largestAccounts.value);
+    //console.log(holders);
+    //gets all owners into pubkey array
+    let owners = [];
+    holders.forEach(async function(holder) {
+      let accountInfo = await TokenMint.getAccountInfo(holder.address);
+      let owner = accountInfo.owner;
+      console.log(owner)
+      owners.push(owner);
+    });
+  });
+
+  
   it('create a pack', async () => {
     const metaConfig = {
       name: "Grump Sleepwalker",
@@ -94,28 +118,104 @@ describe('pda_mint', () => {
     });
     console.log("create pack tx ", tx);
   });
+  
 
-  it('try to change the name', async () => {
-    let newName = "Grumpy Pants John"
-    let newSymbol = "OTPHJ"
-    const tx = await program.rpc.changeNameAndSymbol(authPdaBump, newName, newSymbol, {
-      accounts: {
-        mint: mint.publicKey,
-        mintAuth: authPda,
-        tokenAccount: payerTokenAccount,
-        owner: payer.publicKey,
-        metadata: metadata,
-        systemProgram: SystemProgram.programId,
-        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-      }, 
-      signers: [
-        payer
-      ]
-    });
-    console.log("change name tx: ", tx);
+  it('get token accounts owned by my test owner address', async () => {
+
+
+    //getting all token accounts for a wallet
+    let myWalletPubkey = new PublicKey("5J8jLVz5YY5uc9sJuWtx42VVMUanLGYWoPXMRu7GsNEJ");
+    let squadMints = await getSquadMints(myWalletPubkey);
+
+    
+    console.log("********");
+    console.log(squadMints.length);
+
+
+
   });
 
+  async function mintHasVerifiedCreator(mintKey) {
+    let [metadataAddress, _bump] = await getMetadataAddress(mintKey);
+    let metadataInfo = await provider.connection.getAccountInfo(metadataAddress);
+    if (Boolean(metadataInfo)) {
+      let firstCreator = new PublicKey(metadataInfo.data.slice(326,358));
+      let isFirstCreatorVerified = metadataInfo.data[358];
+      const expectedCreator = authPda;
+      if (expectedCreator.equals(firstCreator) && isFirstCreatorVerified) {
+        console.log("the creator is good");
+        return true
+      } 
+    }
+    return false
+  }
+  async function filterResponsesForSquadMints(responses) {
+    responses = Array.from(responses);
+    let squadMints = [];
+    await Promise.all(responses.map(async (value) => {
+      let mintKey = new PublicKey(value.account.data.slice(0,32));
+      if (await mintHasVerifiedCreator(mintKey)) {
+        squadMints.push(mintKey);        
+      }
+    }));
+    return squadMints
+  }
+
+  async function getSquadMints(walletPubkey) {
+    walletPubkey = new PublicKey(walletPubkey);
+    if (Boolean(walletPubkey)) {
+      let fetch = await provider.connection.getTokenAccountsByOwner(walletPubkey, {
+        programId: TOKEN_PROGRAM_ID
+      });
+      let responses = Array.from(fetch.value);
+      let squadMints = await filterResponsesForSquadMints(responses);
+      return squadMints
+    }
+  }
+  
+  //so this gets all the pack mints. i need to get the pack mints for a specfic wallet
+  //hmmm fuck
+  /* 
+  it('get program accounts by ', async () => {
+    //this gets the metadata accounts w/ the  (me)
+    //from the metadata pda, you can get the mint pubkey, and then you're chilling
+    let 58 = authPda.toBase58();
+    //https://solana-labs.github.io/solana-web3.js/modules.html#MemcmpFilter
+    let config = {
+      filters: [
+        {
+          dataSize: 679
+        },
+        { memcmp: 
+          {
+            bytes: 58, 
+            offset: 326
+          } 
+        },
+      ]
+    }   
+    console.log("STARTING FETCH ");
+    //https://solana-labs.github.io/solana-web3.js/classes/Connection.html#getProgramAccounts
+    let accounts = await provider.connection.getProgramAccounts(
+      TOKEN_METADATA_PROGRAM_ID,
+      config
+    );
+    accounts.forEach(async function (account, index) {
+      console.log(account.pubkey.toBase58());
+    });
+    //so i definitely made this account. okay this is the right account. it's the metadata pda. perfect hell yeah
+    //https://solscan.io/account/33GxVcZZ61ZY7qL78GgrE2RrZeTAFz8LcbNhmcEqJcRR?cluster=devnet
+  });
+  */
+
+
+
+
   /*
+
+ 
+    
+
   it('join the pack with a different user', async () => {
     let secondTokenAccount = await getAssociatedTokenAccountAddress(secondMember.publicKey, mint.publicKey);
 
@@ -141,9 +241,38 @@ describe('pda_mint', () => {
     });
     console.log("Your transaction signature", again);
   });
-  */
+*/
   
 
+  /*
+  it('try to change the name', async () => {
+    const metaConfig = {
+      name: "Grumpy Pants John",
+      symbol: "OTPHJ",
+      uri: "https://arweave.net/s9GUcE4pUFQ90V-dqI6uyEkHkVj6nidSuBoXkfuOrQE"
+    };
+    const tx = await program.rpc.updatePackMetadata(authPdaBump, metaConfig, {
+      accounts: {
+        mint: mint.publicKey,
+        mintAuth: authPda,
+        tokenAccount: payerTokenAccount,
+        owner: payer.publicKey,
+        metadata: metadata,
+        systemProgram: SystemProgram.programId,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      }, 
+      signers: [
+        payer
+      ]
+    });
+    console.log("change name tx: ", tx);
+  });
+  */
+
+  
+  
+
+  /*
   it('see if it worked', async () => {
     let _TokenMint = new Token(
       provider.connection,
@@ -159,6 +288,7 @@ describe('pda_mint', () => {
     let mintInfo = await TokenMint.getMintInfo();
     console.log("the mint's supply: ", mintInfo.supply);
   });
+  */
 
   // it("transfer the new mint", async () => {
   //   const myWalletPubkey = new PublicKey("D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU");
@@ -281,3 +411,22 @@ const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
 
   //i'm not sure if someone can fuck this up by passing in a custom mint. my current thinking is no
   //wait yes. because i need to make sure the freeze authority is actually the authpda
+
+   /*
+
+    for each, i can either grab the freeze authority, or i can query for metadata
+    this is going to include all kinds of tokens
+
+    b5 97 72 bb a9 9e 1a 52 ff 58 a9 77 c8 e1 2d 32 0f 15 b8 9d 2e ec d7 2a b2 aa 0b 4d 1e 9b 55 71 3f d2 5c 99 fa 43 a1 35 77 36 84 2e 94 1d fa a4 f5 42 ... 115 more bytes>,
+    50
+    //165 bytes
+    //1
+    mint auth - 32
+    supply - 8
+    decimals - 1
+    initialized: 1
+    freeze auth - 32 
+
+
+
+    */
