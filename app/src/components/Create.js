@@ -1,7 +1,7 @@
 import './../App.css';
 import { useState } from 'react';
-import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
-import { Program, Provider, web3 } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
+import { Program, web3 } from '@project-serum/anchor';
 import { useWallet } from '@solana/wallet-adapter-react';
 import idl from '../idl.json';
 
@@ -11,27 +11,16 @@ const anchor = require('@project-serum/anchor');
 const SPLToken = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token, MintLayout } = SPLToken;
 const programID = new PublicKey(idl.metadata.address);
-const { getSquadMintKeysForWallet, getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID, getSquadMintAccountsForWallet, fetchAllPackMintAccounts, getMembersForPackMint, isWalletPackMember, isPackEligibleForNewMembers, buildConnectedMembersDict } = require('../modules/queries.js');
+const { getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID } = require('../modules/queries.js');
 
 
 function Create(props) {
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
+
+  const { getProvider } = props;
   const wallet = useWallet();
-  const opts = {
-    preflightCommitment: "processed"
-  }
-
-  //hell yes. this works. provider is anchor specific
-  async function getProvider() {
-    const network = clusterApiUrl('devnet');
-    const connection = new Connection(network, opts.preflightCommitment);
-    const provider = new Provider(
-      connection, wallet, opts.preflightCommitment,
-    );
-    return provider;
-  }
-
+ 
   async function createPack() {
     const metaConfig = {
       name: name,

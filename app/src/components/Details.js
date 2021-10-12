@@ -1,4 +1,4 @@
-import { Connection, PublicKey, clusterApiUrl, Provider } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 const { isWalletPackMember, isPackEligibleForNewMembers } = require('../modules/queries.js');
 
 //first just get the data
@@ -11,6 +11,7 @@ const Details = (props) => {
 
   const { getProvider } = props;
 
+  //if wallet is conne
   async function getDetails() {
 
     let provider = await getProvider();

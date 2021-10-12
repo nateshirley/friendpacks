@@ -31,7 +31,9 @@ const ComponentSwitch = () => {
       <Route path="/details" render={(props) => (
         <Details {...props} getProvider={getProvider} />
       )} />
-      <Route path="/create" component={Create} />
+      <Route path="/create" render={(props) => (
+        <Create {...props} getProvider={getProvider} />
+      )} />
       <Route path="/stuff" component={Stuff} />
       <Route exact path="/" component={Home} />
     </Switch>
