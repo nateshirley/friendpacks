@@ -101,8 +101,6 @@ describe('pda_mint', () => {
       });
     }));
 
-
-
     //let txResponse = await provider.connection.getTransaction("2Exmb8R2jjqJA75ygho1Fi7ZFb4n4vJhQi4Jxa4gp3MYm8p4fmoE16EfB1RWvZf5z2Kb1emFLKfmn4bgdkPmmFE", { commitment: "confirmed" });
     //let message = txResponse.transaction.message;
     //console.log(message);

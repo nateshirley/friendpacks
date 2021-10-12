@@ -77,6 +77,18 @@
     "tweetnacl" "^1.0.3"
     "webpack-dev-server" "^3.11.2"
 
+"@solana/spl-token@^0.1.8":
+  "integrity" "sha512-LZmYCKcPQDtJgecvWOgT/cnoIQPWjdH+QVyzPcFvyDUiT0DiRjZaam4aqNUyvchLFhzgunv3d9xOoyE34ofdoQ=="
+  "resolved" "https://registry.npmjs.org/@solana/spl-token/-/spl-token-0.1.8.tgz"
+  "version" "0.1.8"
+  dependencies:
+    "@babel/runtime" "^7.10.5"
+    "@solana/web3.js" "^1.21.0"
+    "bn.js" "^5.1.0"
+    "buffer" "6.0.3"
+    "buffer-layout" "^1.2.0"
+    "dotenv" "10.0.0"
+
 "@solana/spl-token@0.1.6":
   "integrity" "sha512-fYj+a3w1bqWN6Ibf85XF3h2JkuxevI3Spvqi+mjsNqVUEo2AgxxTZmujNLn/jIzQDNdWkBfF/wYzH5ikcGHmfw=="
   "resolved" "https://registry.npmjs.org/@solana/spl-token/-/spl-token-0.1.6.tgz"
