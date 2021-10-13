@@ -5,14 +5,12 @@ import { Program, web3 } from '@project-serum/anchor';
 import { useWallet } from '@solana/wallet-adapter-react';
 import idl from '../idl.json';
 
-
 const { SystemProgram, Keypair, SYSVAR_RENT_PUBKEY } = web3;
 const anchor = require('@project-serum/anchor');
 const SPLToken = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token, MintLayout } = SPLToken;
 const programID = new PublicKey(idl.metadata.address);
 const { getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID } = require('../modules/queries.js');
-
 
 function Create(props) {
   const [name, setName] = useState('');
@@ -27,7 +25,7 @@ function Create(props) {
       symbol: symbol,
       uri: "https://arweave.net/O8x2J3gyUmRLm5ZRrUsP3anJiGst5Y4FYn2Wugbktls"
     };
-    const provider = await getProvider();
+    const provider = getProvider();
     const program = new Program(idl, programID, provider);
 
     let [authPda, authPdaBump] = await PublicKey.findProgramAddress(

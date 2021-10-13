@@ -7,9 +7,8 @@ class Home extends Component {
       <div>
         <h2>Home</h2>
         <p>This the home page b</p>
-        <li><Link to="/join">join a pack</Link></li>
+        <li><Link to="/find">find a pack</Link></li>
         <li><Link to="/create">start a pack</Link></li>
-        <li><Link to="/details">details example</Link></li>
       </div>
     );
   }

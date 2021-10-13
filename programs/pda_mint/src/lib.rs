@@ -48,7 +48,8 @@ pub mod pda_mint {
             verified: true,
             share: 100,
         }];
-        //https://github.com/metaplex-foundation/metaplex/tree/master/rust/token-metadata/program
+        //i should probably just update it directly here to show primary sale happened. not rn
+        //https://github.com/metaplex-foundation/metaplex/blob/master/rust/token-metadata/program/src/instruction.rs#L247
         let create_metadata_instruction = create_metadata_accounts(
             *ctx.accounts.token_metadata_program.key,
             *ctx.accounts.metadata.key,

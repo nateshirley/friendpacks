@@ -97,6 +97,17 @@ const getMetadataAddress = async (mintPubkey) => {
 }
 exports.getMetadataAddress = getMetadataAddress;
 
+const toPublicKey = (string) => {
+    return new PublicKey(string);
+}
+exports.toPublicKey = toPublicKey;
+
+//parsed account info
+//https://github.com/m-sebastiyan/metaplex/blob/master/rust/token-metadata/program/src/state.rs#L61
+exports.isMetadataV1Account = (accountInfo) => {
+    return accountInfo.owner.equals(TOKEN_METADATA_PROGRAM_ID) && accountInfo.data[0] === 4;
+}
+
 
 exports.getAssociatedTokenAccountAddress = async (owner, mint) => {
     let associatedProgramId = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');

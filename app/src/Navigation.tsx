@@ -13,7 +13,6 @@ const Navigation: FC = () => {
             <h1>Solana Starter App</h1>
             <div>
                 <li><Link to="/">home</Link></li>
-                <li><Link to="/stuff">stuff</Link></li>
                 <li><Link to="/create">create</Link></li>
                 <WalletMultiButton />
                 {wallet && <WalletDisconnectButton />}

@@ -7,6 +7,8 @@ const { getSquadMintKeysForWallet, getMetadataAddress, getAssociatedTokenAccount
 const nameService = require('@solana/spl-name-service');
 const BN = require('bn.js');
 
+//need to figure out how to turn off the primary market thing.
+
 describe('pda_mint', () => {
 
   // Configure the client to use the local cluster.
@@ -67,7 +69,6 @@ describe('pda_mint', () => {
 
   //i need to pass this like a map of all the user's squad connections
   //maybe i could do like memberKey -> packMintKey
-
   it('get transactions for program', async () => {
     let altSampleKey = new PublicKey("HibUDZHM1rVeLzevaUb1vBuWFfGpxtisU36Un6V21pyR");
     //this is an object where connectedMembers[member] = [sharedPackMints]
