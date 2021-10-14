@@ -25,7 +25,7 @@ const ComponentSwitch = () => {
 
   return (
     <Switch>
-      <Route path="/create" render={(props) => (
+      <Route path="/make" render={(props) => (
         <Create {...props} getProvider={getProvider} />
       )} />
       <Route path="/find" render={(props) => (

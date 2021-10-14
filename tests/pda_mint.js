@@ -3,7 +3,7 @@ const { rpc, publicKey } = require('@project-serum/anchor/dist/cjs/utils');
 const { Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } = anchor.web3;
 const SPL = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token, MintLayout }  = SPL;
-const { getSquadMintKeysForWallet, getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID, getSquadMintAccountsForWallet, fetchAllPackMintAccounts, getMembersForPackMint, isWalletPackMember, isPackEligibleForNewMembers, buildConnectedMembersDict } = require('./modules/queries.js');
+const { getPackMintKeysForWallet, getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID, getPackMintAccountsForWallet, fetchAllPackMintAccounts, getMembersForPackMint, isWalletPackMember, isPackEligibleForNewMembers, buildConnectedMembersDict } = require('./modules/queries.js');
 const nameService = require('@solana/spl-name-service');
 const BN = require('bn.js');
 

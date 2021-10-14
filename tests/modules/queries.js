@@ -25,7 +25,7 @@ const mintHasVerifiedCreator = async (mintPubkey, expectedCreator, connection) =
 }
 exports.mintHasVerifiedCreator = mintHasVerifiedCreator;
 
-const getSquadMintKeysForWallet = async (walletPubkey, connection) => {
+const getPackMintKeysForWallet = async (walletPubkey, connection) => {
     walletPubkey = new PublicKey(walletPubkey);
     if (Boolean(walletPubkey)) {
         let fetch = await connection.getTokenAccountsByOwner(walletPubkey, {
@@ -35,7 +35,7 @@ const getSquadMintKeysForWallet = async (walletPubkey, connection) => {
         return await filterResponsesForSquadMintKeys(responses, connection);
     }
 }
-exports.getSquadMintKeysForWallet = getSquadMintKeysForWallet;
+exports.getPackMintKeysForWallet = getPackMintKeysForWallet;
 
 const filterResponsesForSquadMintKeys = async (responses, connection) => {
     responses = Array.from(responses);
@@ -51,7 +51,7 @@ const filterResponsesForSquadMintKeys = async (responses, connection) => {
     return mintKeys
 }
 
-const getSquadMintAccountsForWallet = async (walletPubkey, connection) => {
+const getPackMintAccountsForWallet = async (walletPubkey, connection) => {
     walletPubkey = new PublicKey(walletPubkey);
     if (Boolean(walletPubkey)) {
         let fetch = await connection.getTokenAccountsByOwner(walletPubkey, {
@@ -61,7 +61,7 @@ const getSquadMintAccountsForWallet = async (walletPubkey, connection) => {
         return await filterResponsesForSquadMintAccounts(responses, connection);
     }
 }
-exports.getSquadMintAccountsForWallet = getSquadMintAccountsForWallet;
+exports.getPackMintAccountsForWallet = getPackMintAccountsForWallet;
 
 //return type https://solana-labs.github.io/solana-web3.js/modules.html#AccountInfo
 const filterResponsesForSquadMintAccounts = async (responses, connection) => {
@@ -203,7 +203,7 @@ exports.isPackEligibleForNewMembers = async (packMintPubkey, connection) => {
 }
 
 exports.buildConnectedMembersDict = async (walletPubkey, connection) => {
-    let packMints = await getSquadMintKeysForWallet(walletPubkey, connection);
+    let packMints = await getPackMintKeysForWallet(walletPubkey, connection);
     let connectedMembers = {};
     //memberPubkey:[sharedpackmint]
     //console.log(packMints.length, " we got this many pack mints");

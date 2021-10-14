@@ -3,6 +3,7 @@ import SearchBar from "./SearchBar";
 import PackOverview from "./PackOverview";
 import PackMembers from "./PackMembers";
 import PackInteractivity from "./PackInteractivity";
+import WalletPacks from "./WalletPacks";
 import { createBrowserHistory } from "history";
 import { PublicKey, SystemProgram } from '@solana/web3.js';
 import bs58 from 'bs58';
@@ -14,12 +15,13 @@ import { decodeMetadata } from "./decodeMetadata";
 //GgYncsn5mFYwNoc5h45nbMjQuxhm7Y2w5yWKWCTy5VKz
 //D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU
 
-const { getMembersForPackMint, getMetadataAddress, isMetadataV1Account } = require('../../modules/queries.js');
+const { getMembersForPackMint, getMetadataAddress, isMetadataV1Account, getPackMintKeysForWallet, fetchAllPackMintAccounts } = require('../../modules/queryHelper.js');
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 const EXPECTED_MINT_AUTH = "C3BY8KyUgceUVjCyEuKfxM2uxmQv3iWrgd9rddD3tb7Q";
 const Searches = {
     TOKEN: "token",
     WALLET: "wallet",
+    NONE: "none"
 }
 const Privilege = {
     EDIT: "edit",
@@ -33,6 +35,9 @@ const Find = (props) => {
     const { getProvider } = props;
     const history = createBrowserHistory();
     const [searchText, setSearchText] = useState('');
+    const [searchStatus, setSearchStatus] = useState(Searches.NONE);
+
+    //pack search state
     const [packImageLink, setPackImageLink] = useState('');
     const [packOverview, setPackOverview] = useState({
         name: "",
@@ -42,6 +47,9 @@ const Find = (props) => {
     });
     const [packMembers, setPackMembers] = useState([]);
     const [packPrivilege, setPackPrivilege] = useState(Privilege.NONE);
+    //wallet search state
+    const [walletPackMints, setWalletPackMints] = useState([]);
+
 
     const handleSearchChange = (text) => {
         setSearchText(text);
@@ -58,10 +66,13 @@ const Find = (props) => {
             console.log('searching for token');
             fetchPackOverview(publicKey);
             fetchPackMembers(publicKey);
+            setSearchStatus(type);
         } else if (type === Searches.WALLET) {
-
-        } else {
+            fetchPackMintsForWallet(publicKey);
+            setSearchStatus(type);
+        } else if (type === Searches.NONE) {
             console.log("not searching bc query doens't match type")
+            setSearchStatus(type);
         }
     }
 
@@ -75,8 +86,10 @@ const Find = (props) => {
             if (decoded.length === 32) {
                 search(packMintKey);
                 setSearchText(packMintKey);
+                return
             }
         }
+        fetchExamplePacks()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -94,9 +107,9 @@ const Find = (props) => {
                 }
             }
         }
-        return ["", ""];
+        return [Searches.NONE, ""];
     }
-    const fetchObjectAtUri = (uri) => {
+    const fetchPackDataObjectAtUri = (uri) => {
         try {
             fetch(uri)
                 .then(async (_) => {
@@ -108,9 +121,6 @@ const Find = (props) => {
                         return undefined;
                     }
                 })
-                .catch(() => {
-                    return undefined;
-                });
         } catch (ex) {
             console.error(ex);
         }
@@ -129,13 +139,14 @@ const Find = (props) => {
         if (accountInfo && accountInfo.data.length > 0) {
             if (isMetadataV1Account(accountInfo)) {
                 const metadata = decodeMetadata(accountInfo.data);
+                console.log(metadata);
                 setPackOverview({
                     name: metadata.data.name,
                     symbol: metadata.data.symbol,
                     memberCount: parsed.info.supply,
                     tokenMint: packMintKey.toBase58(),
                 });
-                fetchObjectAtUri(metadata.data.uri);
+                fetchPackDataObjectAtUri(metadata.data.uri);
             };
         }
     }
@@ -156,22 +167,71 @@ const Find = (props) => {
             if (privilege.length === 0 && Boolean(memberCount) && memberCount < 7) {
                 privilege = Privilege.JOIN;
             }
-        } 
+        }
         if (privilege.length === 0) {
             privilege = Privilege.NONE;
         }
         setPackPrivilege(privilege);
     }, [wallet.connected, wallet.publicKey, packMembers, packOverview.memberCount]);
 
+    const fetchPackMintsForWallet = async (walletPubkey) => {
+        let provider = getProvider()
+        let packMints = await getPackMintKeysForWallet(walletPubkey, provider.connection);
+        setWalletPackMints(packMints)
+        console.log(packMints);
+    }
+
+
+    //i can also just do like, a button that says -- "show me some random packs/examples
+    //and then query for it then and refresh the page. fine intermediate solution
+    const fetchExamplePacks = async () => {
+        let provider = getProvider();
+        let allPacks = await fetchAllPackMintAccounts(provider.connection);
+        let allKeys = allPacks.map((pack) => {
+            return pack.pubkey.toBase58()
+        })
+        let sampleKeys = []
+        for (let i = 1; i <= 10; i++) {
+            sampleKeys.push(allKeys[Math.floor(Math.random()*allKeys.length)])
+        }
+        //var sampleItem = allKeys[Math.floor(Math.random()*allKeys.length)]
+        console.log(sampleKeys);
+    }
+
+
+    let infoCards = null;
+    switch (searchStatus) {
+        case Searches.TOKEN:
+            infoCards = (
+                <div>
+                    <PackOverview overview={packOverview} imageLink={packImageLink} />
+                    <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} />
+                    <PackMembers members={packMembers} />
+                </div>
+            )
+            break;
+        case Searches.WALLET:
+            infoCards = (
+                <div>
+                    <WalletPacks packMints={walletPackMints} />
+                </div>
+            )
+            break;
+        default:
+            infoCards = (
+                <div>
+                </div>
+            )
+    }
+
+
+
     return (
         <div>
             <h2>Find</h2>
             <SearchBar handleSearchChange={handleSearchChange} searchText={searchText} />
             <button onClick={didPressSearch}>search</button>
-            <p>show some details</p>
-            <PackOverview overview={packOverview} imageLink={packImageLink} />
-            <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} />
-            <PackMembers members={packMembers} />
+            {infoCards}
         </div>
     );
 }

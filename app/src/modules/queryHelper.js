@@ -2,7 +2,6 @@ const anchor = require('@project-serum/anchor');
 const { PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, Keypair } = anchor.web3;
 const SPLToken = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token } = SPLToken;
-const nameService = require('@solana/spl-name-service');
 
 const TOKEN_METADATA_PROGRAM_ID = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
 exports.TOKEN_METADATA_PROGRAM_ID = TOKEN_METADATA_PROGRAM_ID;
@@ -25,7 +24,7 @@ const mintHasVerifiedCreator = async (mintPubkey, expectedCreator, connection) =
 }
 exports.mintHasVerifiedCreator = mintHasVerifiedCreator;
 
-const getSquadMintKeysForWallet = async (walletPubkey, connection) => {
+const getPackMintKeysForWallet = async (walletPubkey, connection) => {
     walletPubkey = new PublicKey(walletPubkey);
     if (Boolean(walletPubkey)) {
         let fetch = await connection.getTokenAccountsByOwner(walletPubkey, {
@@ -35,7 +34,7 @@ const getSquadMintKeysForWallet = async (walletPubkey, connection) => {
         return await filterResponsesForSquadMintKeys(responses, connection);
     }
 }
-exports.getSquadMintKeysForWallet = getSquadMintKeysForWallet;
+exports.getPackMintKeysForWallet = getPackMintKeysForWallet;
 
 const filterResponsesForSquadMintKeys = async (responses, connection) => {
     responses = Array.from(responses);
@@ -51,7 +50,7 @@ const filterResponsesForSquadMintKeys = async (responses, connection) => {
     return mintKeys
 }
 
-const getSquadMintAccountsForWallet = async (walletPubkey, connection) => {
+const getPackMintAccountsForWallet = async (walletPubkey, connection) => {
     walletPubkey = new PublicKey(walletPubkey);
     if (Boolean(walletPubkey)) {
         let fetch = await connection.getTokenAccountsByOwner(walletPubkey, {
@@ -61,7 +60,7 @@ const getSquadMintAccountsForWallet = async (walletPubkey, connection) => {
         return await filterResponsesForSquadMintAccounts(responses, connection);
     }
 }
-exports.getSquadMintAccountsForWallet = getSquadMintAccountsForWallet;
+exports.getPackMintAccountsForWallet = getPackMintAccountsForWallet;
 
 //return type https://solana-labs.github.io/solana-web3.js/modules.html#AccountInfo
 const filterResponsesForSquadMintAccounts = async (responses, connection) => {
@@ -214,7 +213,7 @@ exports.isPackEligibleForNewMembers = async (packMintPubkey, connection) => {
 }
 
 exports.buildConnectedMembersDict = async (walletPubkey, connection) => {
-    let packMints = await getSquadMintKeysForWallet(walletPubkey, connection);
+    let packMints = await getPackMintKeysForWallet(walletPubkey, connection);
     let connectedMembers = {};
     //memberPubkey:[sharedpackmint]
     //console.log(packMints.length, " we got this many pack mints");
@@ -272,6 +271,10 @@ exports.buildConnectedMembersDict = async (walletPubkey, connection) => {
     - image 
 
     - members -- get the id 
+
+    ended up getting the breakpoint fellowship so i think
+
+    i haven't booked anything for after the conferencebr r
 
 
 */

@@ -7,7 +7,7 @@ const { PublicKey, SystemProgram } = web3;
 const { TOKEN_PROGRAM_ID } = require("@solana/spl-token");
 const anchor = require('@project-serum/anchor');
 const programID = new PublicKey(idl.metadata.address);
-const { getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID, getMetadataAddress } = require('../../modules/queries.js');
+const { getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID, getMetadataAddress } = require('../../modules/queryHelper.js');
 const Privilege = {
     EDIT: "edit",
     JOIN: "join",
@@ -138,3 +138,4 @@ const PackInteractivity = ({ privilege, packOverview, getProvider }) => {
 }
 
 export default PackInteractivity;
+

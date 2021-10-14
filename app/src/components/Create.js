@@ -10,7 +10,7 @@ const anchor = require('@project-serum/anchor');
 const SPLToken = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token, MintLayout } = SPLToken;
 const programID = new PublicKey(idl.metadata.address);
-const { getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID } = require('../modules/queries.js');
+const { getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID } = require('../modules/queryHelper.js');
 
 function Create(props) {
   const [name, setName] = useState('');
@@ -100,19 +100,19 @@ function Create(props) {
       <div>
         <div>
           <input
-            placeholder="set name"
+            placeholder="pack name"
             onChange={e => setName(e.target.value)}
             value={name}
           />
         </div>
         <div>
           <input
-            placeholder="set symbol"
+            placeholder="pack symbol"
             onChange={e => setSymbol(e.target.value)}
             value={symbol}
           />
         </div>
-        <button onClick={createPack}>create pack</button>
+        <button onClick={createPack}>make new pack</button>
       </div>
     </div>
   );
