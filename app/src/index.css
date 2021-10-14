@@ -6,16 +6,18 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #5e5e5e;
-    color: #ffffff;
+    background-color: #EDEDED;
+    color: black;
 }
+
+
 
 nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
-    background: #2c2d30;
+    padding: 2rem 2rem 0rem 2rem;
+    background: #EDEDED;
 }
 
 nav > div {

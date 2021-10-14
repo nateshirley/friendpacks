@@ -1,0 +1,69 @@
+.component-parent {
+    padding-top: 5%;  
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    max-width: 500px;
+    font-family: "Quicksand";
+}
+
+.card {
+    background-color: white;
+    color: black;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+
+    width: 90%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.home-logo {
+    width: 338px;
+    height: 106px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-bottom: 63px;
+}
+
+.home-info {
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-bottom: 30px;
+}
+
+.home-button-group {
+    display: flex;
+    justify-content: center;
+}
+
+.home-button {
+    width: 168px;
+    height: 58px;
+    border-radius: 10px;
+    border: 0px;
+    color: white;
+    font-size: 20px;
+    font-family: 'Quicksand';
+    font-weight: 900;
+    text-align: center;
+    line-height: 58px;
+    text-decoration: none;
+}
+
+.home-button.find {
+    background-color: #FF4561;
+    margin-right: 15px;
+}
+.home-button.make {
+    background-color: #1F5DFF;
+    margin-left: 15px;
+    
+}

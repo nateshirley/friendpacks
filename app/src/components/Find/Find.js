@@ -10,10 +10,13 @@ import bs58 from 'bs58';
 import qs from "qs";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { decodeMetadata } from "./decodeMetadata";
+import { useLocation } from 'react-router-dom'; 
 
 //tokene xample, can join.  5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ
 //GgYncsn5mFYwNoc5h45nbMjQuxhm7Y2w5yWKWCTy5VKz
 //D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU
+
+//i need to figure out how to reload when the key changes
 
 const { getMembersForPackMint, getMetadataAddress, isMetadataV1Account, getPackMintKeysForWallet, fetchAllPackMintAccounts } = require('../../modules/queryHelper.js');
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
@@ -89,9 +92,15 @@ const Find = (props) => {
                 return
             }
         }
-        fetchExamplePacks()
+        //fetchExamplePacks()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const location = useLocation();
+    useEffect(() => {
+        console.log('Location changed');
+        //console.log(location);
+      }, [location]);
 
     const checkSearchType = async (searchText) => {
         let decoded = bs58.decode(searchText);
@@ -99,7 +108,6 @@ const Find = (props) => {
             let publicKey = new PublicKey(searchText);
             let accountInfo = await getProvider().connection.getAccountInfo(publicKey);
             if (accountInfo.owner) {
-                console.log(accountInfo.owner);
                 if (accountInfo.owner.equals(TOKEN_PROGRAM_ID)) {
                     return [Searches.TOKEN, publicKey];
                 } else if (accountInfo.owner.equals(SystemProgram.programId)) {
@@ -198,6 +206,14 @@ const Find = (props) => {
         console.log(sampleKeys);
     }
 
+    const clickedPack = (mintKey) => {
+        console.log("clicked", mintKey)
+        let mintString = mintKey.toBase58();
+        setSearchText(mintString);
+        history.push("?key=" + mintString);
+        search(mintString);
+    }
+
 
     let infoCards = null;
     switch (searchStatus) {
@@ -213,7 +229,7 @@ const Find = (props) => {
         case Searches.WALLET:
             infoCards = (
                 <div>
-                    <WalletPacks packMints={walletPackMints} />
+                    <WalletPacks packMints={walletPackMints} clickedPack={clickedPack}/>
                 </div>
             )
             break;

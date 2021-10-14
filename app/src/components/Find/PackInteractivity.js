@@ -75,7 +75,7 @@ const PackInteractivity = ({ privilege, packOverview, getProvider }) => {
         const metaConfig = {
             name: name,
             symbol: null,
-            uri: null
+            uri: "https://nateshirley.github.io/data/default.json"
         };
         const tx = await program.rpc.updatePackMetadata(authPdaBump, metaConfig, {
             accounts: {

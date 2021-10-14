@@ -2,20 +2,20 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link } from 'react-router-dom';
 
 
-const WalletPacks = ({ packMints }) => {
+const WalletPacks = ({ packMints, clickedPack }) => {
 
-    function refreshPage() {
-        window.location.reload();
-    }
+    // function refreshPage() {
+    //     window.location.reload();
+    // }
 
     let packMintItems = null;
     if (packMints.length > 0) {
         packMintItems = packMints.map((mint, index) => {
-            mint = mint.toBase58();
-            let linkTo = `/find?key=${mint}`
+            let mintString = mint.toBase58();
+            let linkTo = `/find?key=${mintString}`
             return (
                 <div key={index}>pack mint: &nbsp;
-                    <Link to={linkTo} onClick={refreshPage}>{mint}</Link>
+                    <Link to={linkTo} onClick={ () => clickedPack(mint)}>{mintString}</Link>
                 </div>
             );
         })

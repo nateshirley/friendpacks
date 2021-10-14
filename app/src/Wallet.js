@@ -13,7 +13,7 @@ import {
 import { clusterApiUrl } from '@solana/web3.js';
 import React, {useCallback, useMemo } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import Navigation from './Navigation';
+import Navigation from './components/navbar/Navigation';
 import Notification from './Notification';
 import ComponentSwitch from './ComponentSwitch';
 
