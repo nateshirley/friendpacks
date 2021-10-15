@@ -138,7 +138,7 @@ const Find = (props) => {
         let result = (await provider.connection.getParsedAccountInfo(packMintKey)).value;
         let parsed = result.data.parsed;
         if (parsed.info.freezeAuthority !== EXPECTED_MINT_AUTH || result.data.program !== "spl-token") {
-            console.log("bad result");
+            console.log("");
             return
         }
         // eslint-disable-next-line no-unused-vars

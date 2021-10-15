@@ -3,13 +3,13 @@ const { PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY, Ke
 const SPLToken = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token } = SPLToken;
 
-const TOKEN_METADATA_PROGRAM_ID = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
-exports.TOKEN_METADATA_PROGRAM_ID = TOKEN_METADATA_PROGRAM_ID;
+export const TOKEN_METADATA_PROGRAM_ID = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+//exports.TOKEN_METADATA_PROGRAM_ID = TOKEN_METADATA_PROGRAM_ID;
 const PACK_PROGRAM_ID = new PublicKey("85185DcWJF1fg7qnAjGnXVf6RU9fPKxCagJ7w1rFxkps");
 const ASSOCIATED_PROGRAM_ID = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
 
 
-const mintHasVerifiedCreator = async (mintPubkey, expectedCreator, connection) => {
+export const mintHasVerifiedCreator = async (mintPubkey, expectedCreator, connection) => {
     let [metadataAddress, _bump] = await getMetadataAddress(mintPubkey);
     let metadataInfo = await connection.getAccountInfo(metadataAddress);
     if (Boolean(metadataInfo)) {
@@ -22,9 +22,9 @@ const mintHasVerifiedCreator = async (mintPubkey, expectedCreator, connection) =
     }
     return false
 }
-exports.mintHasVerifiedCreator = mintHasVerifiedCreator;
+//exports.mintHasVerifiedCreator = mintHasVerifiedCreator;
 
-const getPackMintKeysForWallet = async (walletPubkey, connection) => {
+export const getPackMintKeysForWallet = async (walletPubkey, connection) => {
     walletPubkey = new PublicKey(walletPubkey);
     if (Boolean(walletPubkey)) {
         let fetch = await connection.getTokenAccountsByOwner(walletPubkey, {
@@ -34,7 +34,7 @@ const getPackMintKeysForWallet = async (walletPubkey, connection) => {
         return await filterResponsesForSquadMintKeys(responses, connection);
     }
 }
-exports.getPackMintKeysForWallet = getPackMintKeysForWallet;
+//exports.getPackMintKeysForWallet = getPackMintKeysForWallet;
 
 const filterResponsesForSquadMintKeys = async (responses, connection) => {
     responses = Array.from(responses);
@@ -50,7 +50,7 @@ const filterResponsesForSquadMintKeys = async (responses, connection) => {
     return mintKeys
 }
 
-const getPackMintAccountsForWallet = async (walletPubkey, connection) => {
+export const getPackMintAccountsForWallet = async (walletPubkey, connection) => {
     walletPubkey = new PublicKey(walletPubkey);
     if (Boolean(walletPubkey)) {
         let fetch = await connection.getTokenAccountsByOwner(walletPubkey, {
@@ -60,10 +60,10 @@ const getPackMintAccountsForWallet = async (walletPubkey, connection) => {
         return await filterResponsesForSquadMintAccounts(responses, connection);
     }
 }
-exports.getPackMintAccountsForWallet = getPackMintAccountsForWallet;
+//exports.getPackMintAccountsForWallet = getPackMintAccountsForWallet;
 
 //return type https://solana-labs.github.io/solana-web3.js/modules.html#AccountInfo
-const filterResponsesForSquadMintAccounts = async (responses, connection) => {
+export const filterResponsesForSquadMintAccounts = async (responses, connection) => {
     responses = Array.from(responses);
     let mintAccounts = [];
     const [expectedCreator, _bump] = await getAuthPda();
@@ -84,7 +84,7 @@ const getAuthPda = async () => {
     );
 }
 
-const getMetadataAddress = async (mintPubkey) => {
+export const getMetadataAddress = async (mintPubkey) => {
     return await anchor.web3.PublicKey.findProgramAddress(
         [
           Buffer.from("metadata"),
@@ -94,21 +94,21 @@ const getMetadataAddress = async (mintPubkey) => {
         TOKEN_METADATA_PROGRAM_ID
     );
 }
-exports.getMetadataAddress = getMetadataAddress;
+//exports.getMetadataAddress = getMetadataAddress;
 
-const toPublicKey = (string) => {
+export const toPublicKey = (string) => {
     return new PublicKey(string);
 }
-exports.toPublicKey = toPublicKey;
+//exports.toPublicKey = toPublicKey;
 
 //parsed account info
 //https://github.com/m-sebastiyan/metaplex/blob/master/rust/token-metadata/program/src/state.rs#L61
-exports.isMetadataV1Account = (accountInfo) => {
+export const isMetadataV1Account = (accountInfo) => {
     return accountInfo.owner.equals(TOKEN_METADATA_PROGRAM_ID) && accountInfo.data[0] === 4;
 }
 
 
-exports.getAssociatedTokenAccountAddress = async (owner, mint) => {
+export const getAssociatedTokenAccountAddress = async (owner, mint) => {
     let associatedProgramId = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
     return (
         await PublicKey.findProgramAddress(
@@ -118,7 +118,7 @@ exports.getAssociatedTokenAccountAddress = async (owner, mint) => {
     )[0];
 };
 
-exports.createAssociatedTokenAccountInstruction = (
+export const createAssociatedTokenAccountInstruction = (
     mint,
     associatedAccount,
     owner,
@@ -142,7 +142,7 @@ exports.createAssociatedTokenAccountInstruction = (
 }
 
 //returns Promise<{ account: AccountInfo<Buffer>; pubkey: PublicKey }
-exports.fetchAllPackMintAccounts = async (connection) => {
+export const fetchAllPackMintAccounts = async (connection) => {
     let [authPda, _bump] = await getAuthPda();
     //https://solana-labs.github.io/solana-web3.js/modules.html#MemcmpFilter
     let config = {
@@ -166,7 +166,7 @@ exports.fetchAllPackMintAccounts = async (connection) => {
     return accounts;
 } 
 
-const getMembersForPackMint = async (mintPubkey, connection) => {
+export const getMembersForPackMint = async (mintPubkey, connection) => {
     let TokenMint = new Token(
       connection,
       mintPubkey,
@@ -187,9 +187,9 @@ const getMembersForPackMint = async (mintPubkey, connection) => {
     }));
     return members
 }
-exports.getMembersForPackMint = getMembersForPackMint;
+//exports.getMembersForPackMint = getMembersForPackMint;
 
-exports.isWalletPackMember = async (walletPubkey, packMintPubkey, connection) => {
+export const isWalletPackMember = async (walletPubkey, packMintPubkey, connection) => {
     walletPubkey = new PublicKey(walletPubkey);
     //members: [PublicKey]
     let isMember = false;
@@ -202,7 +202,7 @@ exports.isWalletPackMember = async (walletPubkey, packMintPubkey, connection) =>
     return [isMember, members]
 }
 
-exports.isPackEligibleForNewMembers = async (packMintPubkey, connection) => {
+export const isPackEligibleForNewMembers = async (packMintPubkey, connection) => {
     let packTokenSupply = await connection.getTokenSupply(packMintPubkey);
     let supplyAmount = packTokenSupply.value.uiAmount;
     console.log("pack token supply is ", supplyAmount);
@@ -212,7 +212,7 @@ exports.isPackEligibleForNewMembers = async (packMintPubkey, connection) => {
     return true
 }
 
-exports.buildConnectedMembersDict = async (walletPubkey, connection) => {
+export const buildConnectedMembersDict = async (walletPubkey, connection) => {
     let packMints = await getPackMintKeysForWallet(walletPubkey, connection);
     let connectedMembers = {};
     //memberPubkey:[sharedpackmint]
