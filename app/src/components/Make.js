@@ -4,6 +4,11 @@ import { PublicKey } from '@solana/web3.js';
 import { Program, web3 } from '@project-serum/anchor';
 import { useWallet } from '@solana/wallet-adapter-react';
 import idl from '../idl.json';
+import "./global.css";
+import { useHistory } from "react-router-dom";
+import MoonLoader from "react-spinners/MoonLoader";
+import { css } from "@emotion/react";
+
 
 const { SystemProgram, Keypair, SYSVAR_RENT_PUBKEY } = web3;
 const anchor = require('@project-serum/anchor');
@@ -11,20 +16,30 @@ const SPLToken = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token, MintLayout } = SPLToken;
 const programID = new PublicKey(idl.metadata.address);
 const { getMetadataAddress, getAssociatedTokenAccountAddress, createAssociatedTokenAccountInstruction, TOKEN_METADATA_PROGRAM_ID } = require('../modules/queryHelper.js');
+const override = css`
+display: block;
+margin: 0 auto;
+border-color: black;
+`;
 
-function Create(props) {
+function Make(props) {
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { getProvider } = props;
   const wallet = useWallet();
- 
+  const history = useHistory();
+
   async function createPack() {
     const metaConfig = {
       name: name,
       symbol: symbol,
       uri: "https://arweave.net/O8x2J3gyUmRLm5ZRrUsP3anJiGst5Y4FYn2Wugbktls"
     };
+    if (name.length < 1 || symbol.length < 1) {
+      return
+    }
     const provider = getProvider();
     const program = new Program(idl, programID, provider);
 
@@ -39,10 +54,12 @@ function Create(props) {
     console.log(payer);
 
     let payerTokenAccount = await getAssociatedTokenAccountAddress(payer, mint.publicKey);
-    let rent = await provider.connection.getMinimumBalanceForRentExemption(
+    let rent = await provider.connectmion.getMinimumBalanceForRentExemption(
       MintLayout.span
     );
     let [metadataAddress, _metadataBump] = await getMetadataAddress(mint.publicKey);
+
+    setIsLoading(true);
 
     const tx = await program.rpc.createPack(authPdaBump, metaConfig, {
       accounts: {
@@ -83,26 +100,31 @@ function Create(props) {
         provider.wallet.payer, mint
       ]
     });
-    console.log("create pack tx ", tx);
+    // console.log("create pack tx ", tx);
     setName('');
     setSymbol('');
+    setIsLoading(false);
     //push user to pack details page with mint id
+    history.replace("/find?key=" + mint.publicKey.toBase58())
   }
+
+  let body = null;
+
   if (!wallet.connected) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
-        connect your wallet
+    body = (
+      <div className="home-info" style={{ marginTop: "50px" }}>
+        first, select wallet ↗
       </div>
     )
-  }
-  return (
-    <div className="App">
+  } else {
+    body = (
       <div>
         <div>
           <input
             placeholder="pack name"
             onChange={e => setName(e.target.value)}
             value={name}
+            className="default-input"
           />
         </div>
         <div>
@@ -110,13 +132,26 @@ function Create(props) {
             placeholder="pack symbol"
             onChange={e => setSymbol(e.target.value)}
             value={symbol}
+            className="default-input"
           />
         </div>
-        <button onClick={createPack}>make new pack</button>
+        {isLoading
+          ? <div style={{marginTop: "24px"}}><MoonLoader loading={true} size={31} css={override} /></div>
+          : <button className="default-button make" onClick={createPack}>make new pack</button>
+        }
       </div>
+    )
+  }
+
+ 
+
+  return (
+    <div className="component-parent make">
+      <div className="component-header">Make</div>
+      {body}
     </div>
-  );
+  )
 }
 
-export default Create;
+export default Make;
 

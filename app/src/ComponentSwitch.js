@@ -3,7 +3,7 @@ import { Provider } from '@project-serum/anchor';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Route, Switch } from 'react-router-dom';
 import Home from './components/Home';
-import Create from './components/Create';
+import Make from './components/Make';
 import Find from './components/Find/Find';
 
 
@@ -26,7 +26,7 @@ const ComponentSwitch = () => {
   return (
     <Switch>
       <Route path="/make" render={(props) => (
-        <Create {...props} getProvider={getProvider} />
+        <Make {...props} getProvider={getProvider} />
       )} />
       <Route path="/find" render={(props) => (
         <Find {...props} getProvider={getProvider} />

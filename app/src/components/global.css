@@ -1,69 +1,140 @@
 .component-parent {
-    padding-top: 5%;  
-    margin-left: auto;
-    margin-right: auto;
-    width: 90%;
-    max-width: 500px;
-    font-family: "Quicksand";
+  padding-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+  max-width: 540px;
+  font-family: "Quicksand";
 }
 
 .card {
-    background-color: white;
-    color: black;
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 2px;
-    border-color: black;
+  background-color: white;
+  color: black;
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
 
-    width: 90%;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+  width: 90%;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .home-logo {
-    width: 338px;
-    height: 106px;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    margin-bottom: 63px;
+  width: 338px;
+  height: 106px;
+  margin-top: 44px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  margin-bottom: 63px;
 }
 
 .home-info {
-    font-weight: 600;
-    font-size: 20px;
-    text-align: center;
-    margin-left: 2%;
-    margin-right: 2%;
-    margin-bottom: 30px;
+  font-weight: 600;
+  font-size: 20px;
+  text-align: center;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-bottom: 30px;
 }
 
 .home-button-group {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
+
+
 .home-button {
-    width: 168px;
-    height: 58px;
-    border-radius: 10px;
-    border: 0px;
-    color: white;
-    font-size: 20px;
-    font-family: 'Quicksand';
-    font-weight: 900;
-    text-align: center;
-    line-height: 58px;
-    text-decoration: none;
+  width: 160px;
+  height: 53px;
+  border-radius: 10px;
+  border: 0px;
+  color: white;
+  font-size: 20px;
+  font-family: "Quicksand";
+  font-weight: 900;
+  text-align: center;
+  line-height: 53px;
+  text-decoration: none;
 }
 
 .home-button.find {
-    background-color: #FF4561;
-    margin-right: 15px;
+  background-color: #ff4561;
+  margin-right: 15px;
 }
 .home-button.make {
-    background-color: #1F5DFF;
-    margin-left: 15px;
-    
+  background-color: #1f5dff;
+  margin-left: 15px;
+}
+
+.component-header {
+  font-size: 44px;
+  font-weight: 900;
+  margin-bottom: 30px;
+}
+
+.component-parent.make {
+  max-width: 450px;
+}
+
+.default-input {
+  height: 50px;
+  width: 100%;
+  border-radius: 10px;
+  border-width: 0px;
+  background-color: white;
+  margin-top: 10px;
+  font-size: 18px;
+  font-family: "Quicksand";
+  font-weight: 600;
+  padding-left: 22px;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
+}
+.default-input.search {
+    width: 83%;
+    max-width: 410px;
+}
+
+.default-input:focus {
+  outline: none !important;
+  border: 1px solid #1f5dff;
+  box-shadow: 0 0 5px #b4b4b4;
+}
+
+.default-button {
+    background-color: #1f5dff;
+    border-width: 0;
+    width: 100%;
+    height: 50px;
+    font-size: 20px;
+    font-family: "Quicksand";
+    font-weight: 900;
+    color: white;
+    border-radius: 10px;
+    cursor:pointer;
+}
+.default-button:hover {
+    background-color: #1D58F2;
+    color: #F2F4FF;
+}
+
+.default-button.make {
+    margin-top: 30px;
+}
+
+.default-button.search {
+    width: 22%;
+    max-width: 105px;
+    font-size: 18px;
+    margin-left: 16px;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box; 
+    background-color: #C1FFF0;
+    color: black;
 }

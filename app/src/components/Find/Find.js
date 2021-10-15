@@ -4,13 +4,13 @@ import PackOverview from "./PackOverview";
 import PackMembers from "./PackMembers";
 import PackInteractivity from "./PackInteractivity";
 import WalletPacks from "./WalletPacks";
-import { createBrowserHistory } from "history";
 import { PublicKey, SystemProgram } from '@solana/web3.js';
 import bs58 from 'bs58';
 import qs from "qs";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { decodeMetadata } from "./decodeMetadata";
-import { useLocation } from 'react-router-dom'; 
+import { useLocation, useHistory } from 'react-router-dom';
+import "../global.css";
 
 //tokene xample, can join.  5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ
 //GgYncsn5mFYwNoc5h45nbMjQuxhm7Y2w5yWKWCTy5VKz
@@ -36,7 +36,7 @@ const Privilege = {
 const Find = (props) => {
     const wallet = useWallet();
     const { getProvider } = props;
-    const history = createBrowserHistory();
+    const history = useHistory();
     const [searchText, setSearchText] = useState('');
     const [searchStatus, setSearchStatus] = useState(Searches.NONE);
 
@@ -100,7 +100,7 @@ const Find = (props) => {
     useEffect(() => {
         console.log('Location changed');
         //console.log(location);
-      }, [location]);
+    }, [location]);
 
     const checkSearchType = async (searchText) => {
         let decoded = bs58.decode(searchText);
@@ -200,7 +200,7 @@ const Find = (props) => {
         })
         let sampleKeys = []
         for (let i = 1; i <= 10; i++) {
-            sampleKeys.push(allKeys[Math.floor(Math.random()*allKeys.length)])
+            sampleKeys.push(allKeys[Math.floor(Math.random() * allKeys.length)])
         }
         //var sampleItem = allKeys[Math.floor(Math.random()*allKeys.length)]
         console.log(sampleKeys);
@@ -229,7 +229,7 @@ const Find = (props) => {
         case Searches.WALLET:
             infoCards = (
                 <div>
-                    <WalletPacks packMints={walletPackMints} clickedPack={clickedPack}/>
+                    <WalletPacks packMints={walletPackMints} clickedPack={clickedPack} />
                 </div>
             )
             break;
@@ -238,15 +238,16 @@ const Find = (props) => {
                 <div>
                 </div>
             )
+            //add show random packs
     }
 
 
 
     return (
-        <div>
-            <h2>Find</h2>
+        <div className="component-parent">
+            <div className="component-header">Find</div>
             <SearchBar handleSearchChange={handleSearchChange} searchText={searchText} />
-            <button onClick={didPressSearch}>search</button>
+            <button className="default-button search" onClick={didPressSearch}>search</button>
             {infoCards}
         </div>
     );

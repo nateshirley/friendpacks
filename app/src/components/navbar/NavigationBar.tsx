@@ -6,13 +6,13 @@ import logo from "../../assets/navBarLogo.png"
 import "../global.css";
 import "./navbar.css"
 
-const Navigation: FC = () => {
+const NavigationBar: FC = () => {
     const { wallet } = useWallet();
 
     let connectStyle = {
         color: "black",
         backgroundColor: "white",
-        border: '1px solid rgba(0, 0, 0, 0.05)',
+        border: '2px solid rgba(0, 0, 0, 1)',
         fontFamily: "Quicksand",
         fontWeight: 800
     }
@@ -29,4 +29,4 @@ const Navigation: FC = () => {
     );
 };
 
-export default Navigation;
+export default NavigationBar;
