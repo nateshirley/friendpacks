@@ -9,12 +9,12 @@ const BN = require('bn.js');
 
 //need to figure out how to turn off the primary market thing.
 
-describe('pda_mint', () => {
+describe('madpacks', () => {
 
   // Configure the client to use the local cluster.
   const provider = anchor.Provider.env()
   anchor.setProvider(provider);
-  const program = anchor.workspace.PdaMint;
+  const program = anchor.workspace.Madpacks;
 
   let mint = Keypair.generate();
   let payer = provider.wallet.payer;

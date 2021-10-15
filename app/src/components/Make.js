@@ -43,6 +43,8 @@ function Make(props) {
     const provider = getProvider();
     const program = new Program(idl, programID, provider);
 
+    console.log(provider);
+    
     let [authPda, authPdaBump] = await PublicKey.findProgramAddress(
       //gets a determinstic pda address using this string and the program id
       [anchor.utils.bytes.utf8.encode("authority")],
@@ -51,10 +53,10 @@ function Make(props) {
 
     let mint = Keypair.generate();
     let payer = provider.wallet.publicKey;
-    console.log(payer);
+    //console.log(payer);
 
     let payerTokenAccount = await getAssociatedTokenAccountAddress(payer, mint.publicKey);
-    let rent = await provider.connectmion.getMinimumBalanceForRentExemption(
+    let rent = await provider.connection.getMinimumBalanceForRentExemption(
       MintLayout.span
     );
     let [metadataAddress, _metadataBump] = await getMetadataAddress(mint.publicKey);
@@ -106,6 +108,7 @@ function Make(props) {
     setIsLoading(false);
     //push user to pack details page with mint id
     history.replace("/find?key=" + mint.publicKey.toBase58())
+    
   }
 
   let body = null;

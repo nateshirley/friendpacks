@@ -9,7 +9,7 @@ const AUTH_PDA_SEED: &[u8] = b"authority";
 const MET_PDA_SEED: &[u8] = b"metadata";
 
 #[program]
-pub mod pda_mint {
+pub mod madpacks {
     use super::*;
     pub fn create_pack(ctx: Context<CreatePack>, _auth_pda_bump: u8, meta_config: MetaConfig) -> ProgramResult {
         let (_pda, bump_seed) = Pubkey::find_program_address(&[AUTH_PDA_SEED], ctx.program_id);
