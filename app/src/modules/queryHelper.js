@@ -5,7 +5,7 @@ const { TOKEN_PROGRAM_ID, Token } = SPLToken;
 
 export const TOKEN_METADATA_PROGRAM_ID = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
 //exports.TOKEN_METADATA_PROGRAM_ID = TOKEN_METADATA_PROGRAM_ID;
-const PACK_PROGRAM_ID = new PublicKey("85185DcWJF1fg7qnAjGnXVf6RU9fPKxCagJ7w1rFxkps");
+const PACK_PROGRAM_ID = new PublicKey("5GstP3i7wvo1NEiPDUa9TcdqFFFYaaZDATX2WyVquzT4");
 const ASSOCIATED_PROGRAM_ID = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
 
 

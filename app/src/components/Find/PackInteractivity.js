@@ -18,9 +18,10 @@ const Privilege = {
 //     symbol: "",
 //     memberCount: "",
 //     tokenMint: "",
+//      tokenMintDisplayString
 // });
 
-const PackInteractivity = ({ privilege, packOverview, getProvider }) => {
+const PackInteractivity = ({ privilege, packOverview, getProvider, determinePackMembers }) => {
     const wallet = useWallet();
     let [isEditing, setIsEditing] = useState(false);
     let [name, setName] = useState('');
@@ -56,6 +57,7 @@ const PackInteractivity = ({ privilege, packOverview, getProvider }) => {
             ]
         });
         console.log(tx);
+        determinePackMembers(mint);
     }
     const didPressEditPack = () => {
         setIsEditing(true);
@@ -96,42 +98,61 @@ const PackInteractivity = ({ privilege, packOverview, getProvider }) => {
     }
 
 
-    let button = null;
+    let isPackFull = Number(packOverview.memberCount) > 6 ? true : false;
+    let body = null;
     switch (privilege) {
         case Privilege.EDIT:
-            button = <button onClick={didPressEditPack}>edit</button>;
+            //user can edit. just a big edit button for the whole body
+            if (isEditing) {
+                body = (
+                    <div>
+                        <div>
+                            <input
+                                placeholder="set name"
+                                onChange={e => setName(e.target.value)}
+                                value={name}
+                            />
+                        </div>
+                        <button onClick={editPack}>change shit</button>
+                    </div>
+                )
+            } else {
+                body = <button onClick={didPressEditPack} className="pack-interactive-button edit">edit this pack</button>;
+            }
             break;
         case Privilege.JOIN:
-            button = <button onClick={joinPack}>join</button>
+            if (isPackFull) {
+                //wallet connected, not a member, but the pack is full. (should probably just return nothing)
+                body = (
+                    <div className="pack-interactivity-info">
+                        Pack is full. This wallet is not a member.
+                    </div>
+                )
+            } else {
+                body = (<button onClick={joinPack} className="pack-interactive-button join">join this pack</button>)
+            }
             break;
         case Privilege.NONE:
-            button = <div>no priv</div>
+            if (isPackFull) {
+                body = (
+                    <div className="pack-interactivity-info">
+                        Pack is full. If you're a member, connect wallet to make edits.
+                    </div>
+                )
+            } else {
+                body = (
+                    <div className="pack-interactivity-info">
+                        Connect wallet to join this pack or make edits.
+                    </div>
+                )
+            }
             break;
         default:
-            button = <div></div>
-    }
-
-    let editName = <div></div>;
-    if (isEditing) {
-        editName = (
-            <div>
-                <div>
-                    <input
-                        placeholder="set name"
-                        onChange={e => setName(e.target.value)}
-                        value={name}
-                    />
-                </div>
-                <button onClick={editPack}>change shit</button>
-            </div>
-        )
+            body = <div></div>
     }
 
     return (
-        <div>
-            {button}
-            {editName}
-        </div>
+        <div>{body}</div>
     );
 
 

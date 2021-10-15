@@ -4,7 +4,7 @@ use anchor_spl::token::{self, Token, Mint as MintAccount, MintTo, TokenAccount, 
 use spl_token_metadata::{instruction::{update_metadata_accounts}, state::Metadata};
 use token_metadata_local::{create_metadata_accounts};
 
-declare_id!("85185DcWJF1fg7qnAjGnXVf6RU9fPKxCagJ7w1rFxkps");
+declare_id!("5GstP3i7wvo1NEiPDUa9TcdqFFFYaaZDATX2WyVquzT4"); ////old program id w/pda_mint 85185DcWJF1fg7qnAjGnXVf6RU9fPKxCagJ7w1rFxkps
 const AUTH_PDA_SEED: &[u8] = b"authority";
 const MET_PDA_SEED: &[u8] = b"metadata";
 

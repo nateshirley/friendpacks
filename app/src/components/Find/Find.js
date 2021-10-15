@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import SearchBar from "./SearchBar";
 import PackOverview from "./PackOverview";
 import PackMembers from "./PackMembers";
@@ -11,16 +11,24 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { decodeMetadata } from "./decodeMetadata";
 import { useLocation, useHistory } from 'react-router-dom';
 import "../global.css";
+import { displayPartsToString } from "typescript";
 
+//old program id
 //tokene xample, can join.  5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ
 //GgYncsn5mFYwNoc5h45nbMjQuxhm7Y2w5yWKWCTy5VKz
-//D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU
+
+//D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU -- wallet
+
+//E5oxngwMMygv42MWNLAwN83CJ2Pk6Zyk9P8DFsTNNVxm -- new program ID
+
+
+
 
 //i need to figure out how to reload when the key changes
 
 const { getMembersForPackMint, getMetadataAddress, isMetadataV1Account, getPackMintKeysForWallet, fetchAllPackMintAccounts } = require('../../modules/queryHelper.js');
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
-const EXPECTED_MINT_AUTH = "C3BY8KyUgceUVjCyEuKfxM2uxmQv3iWrgd9rddD3tb7Q";
+const EXPECTED_MINT_AUTH = "7p18ccUgAidUyLa2vGbBiWPbCwpx9D8V7pDCeFXQaCuJ"; //old met authC3BY8KyUgceUVjCyEuKfxM2uxmQv3iWrgd9rddD3tb7Q,
 const Searches = {
     TOKEN: "token",
     WALLET: "wallet",
@@ -47,6 +55,7 @@ const Find = (props) => {
         symbol: "",
         memberCount: "",
         tokenMint: "",
+        tokenMintDisplayString: ""
     });
     const [packMembers, setPackMembers] = useState([]);
     const [packPrivilege, setPackPrivilege] = useState(Privilege.NONE);
@@ -68,7 +77,7 @@ const Find = (props) => {
             //fetch the token shit
             console.log('searching for token');
             fetchPackOverview(publicKey);
-            fetchPackMembers(publicKey);
+            determinePackMembers(publicKey);
             setSearchStatus(type);
         } else if (type === Searches.WALLET) {
             fetchPackMintsForWallet(publicKey);
@@ -153,17 +162,19 @@ const Find = (props) => {
                     symbol: metadata.data.symbol,
                     memberCount: parsed.info.supply,
                     tokenMint: packMintKey.toBase58(),
+                    tokenMintDisplayString: toDisplayString(packMintKey)
                 });
                 fetchPackDataObjectAtUri(metadata.data.uri);
             };
         }
     }
-    const fetchPackMembers = async (packMintKey) => {
+    const determinePackMembers = async (packMintKey) => {
         let provider = getProvider();
         let members = await getMembersForPackMint(packMintKey, provider.connection);
         setPackMembers(members);
     }
-    useEffect(() => {
+    const determinePrivilege = useCallback(() => {
+        console.log("updating privilege")
         let privilege = "";
         if (wallet.connected) {
             packMembers.forEach((member) => {
@@ -181,6 +192,9 @@ const Find = (props) => {
         }
         setPackPrivilege(privilege);
     }, [wallet.connected, wallet.publicKey, packMembers, packOverview.memberCount]);
+    useEffect(() => {
+        determinePrivilege();
+    }, [wallet.connected, wallet.publicKey, packMembers, packOverview.memberCount, determinePrivilege]);
 
     const fetchPackMintsForWallet = async (walletPubkey) => {
         let provider = getProvider()
@@ -214,6 +228,11 @@ const Find = (props) => {
         search(mintString);
     }
 
+    const toDisplayString = (publicKey) => {
+        let b58 = publicKey.toBase58();
+        return (b58.slice(0,4) + "..." + b58.slice(b58.length - 5, b58.length - 1));
+    }
+
 
     let infoCards = null;
     switch (searchStatus) {
@@ -221,7 +240,7 @@ const Find = (props) => {
             infoCards = (
                 <div>
                     <PackOverview overview={packOverview} imageLink={packImageLink} />
-                    <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} />
+                    <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} determinePackMembers={determinePackMembers}/>
                     <PackMembers members={packMembers} />
                 </div>
             )
@@ -245,7 +264,7 @@ const Find = (props) => {
 
     return (
         <div className="component-parent">
-            <div className="component-header">Find</div>
+            <div className="component-header">Find a Pack</div>
             <SearchBar handleSearchChange={handleSearchChange} searchText={searchText} />
             <button className="default-button search" onClick={didPressSearch}>search</button>
             {infoCards}

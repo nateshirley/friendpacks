@@ -5,7 +5,7 @@
   width: 90%;
   max-width: 540px;
   font-family: "Quicksand";
-  background-color: #EDEDED;
+  background-color: #ededed;
 }
 
 .card {
@@ -45,8 +45,6 @@
   display: flex;
   justify-content: center;
 }
-
-
 
 .home-button {
   width: 160px;
@@ -93,13 +91,13 @@
   font-weight: 600;
   padding-left: 22px;
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-  box-sizing: border-box;         /* Opera/IE 8+ */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
 }
 .default-input.search {
-    width: 83%;
-    max-width: 410px;
-    margin-top: 0px;
+  width: 83%;
+  max-width: 410px;
+  margin-top: 0px;
 }
 
 .default-input:focus {
@@ -109,36 +107,36 @@
 }
 
 .default-button {
-    background-color: #1f5dff;
-    border-width: 0;
-    width: 100%;
-    height: 50px;
-    font-size: 20px;
-    font-family: "Quicksand";
-    font-weight: 900;
-    color: white;
-    border-radius: 10px;
-    cursor:pointer;
+  background-color: #1f5dff;
+  border-width: 0;
+  width: 100%;
+  height: 50px;
+  font-size: 20px;
+  font-family: "Quicksand";
+  font-weight: 900;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
 }
 .default-button:hover {
-    background-color: #1D58F2;
-    color: #F2F4FF;
+  background-color: #1d58f2;
+  color: #f2f4ff;
 }
 
 .default-button.make {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .default-button.search {
-    width: 22%;
-    max-width: 105px;
-    font-size: 18px;
-    margin-left: 16px;
-    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    box-sizing: border-box; 
-    background-color: #C1FFF0;
-    color: black;
+  width: 22%;
+  max-width: 105px;
+  font-size: 18px;
+  margin-left: 16px;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box;
+  background-color: #c1fff0;
+  color: black;
 }
 
 .overview-header {
@@ -154,3 +152,42 @@
   padding: 23px 23px 23px 23px;
 }
 
+.overview-row {
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.overview-labels {
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 500;
+  color: #A4A4A4;
+}
+
+.pack-interactivity-info {
+  margin-top: 13px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 23px 23px 23px 23px;
+}
+
+.pack-interactive-button {
+  margin-top: 20px;
+  border-width: 0;
+  width: 100%;
+  height: 42px;
+  font-size: 16px;
+  font-family: "Quicksand";
+  font-weight: 900;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.pack-interactive-button.join {
+  background-color: #1f5dff;
+  color: white;
+}
+.pack-interactive-button.edit {
+  background-color: #ADF1FF;
+  color: black;
+}
