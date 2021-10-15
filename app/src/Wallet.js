@@ -55,7 +55,7 @@ const Wallet = () => {
             <WalletProvider wallets={wallets} onError={onError} autoConnect>
                 <WalletModalProvider>
                     <Navigation />
-                    <ComponentSwitch/>
+                    <ComponentSwitch className="big-experiment"/>
                 </WalletModalProvider>
                 <Toaster position="bottom-left" reverseOrder={false} />
             </WalletProvider>

@@ -6,17 +6,23 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #EDEDED;
+    background-color: #EDEDED !important;
     color: black;
 }
-
-
 
 nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 2rem 2rem 0rem 2rem;
+    background: #EDEDED;
+}
+
+:root {
+    background-color: #EDEDED;
+}
+
+.global-body {
     background: #EDEDED;
 }
 

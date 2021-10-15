@@ -5,6 +5,7 @@
   width: 90%;
   max-width: 540px;
   font-family: "Quicksand";
+  background-color: #EDEDED;
 }
 
 .card {
@@ -98,6 +99,7 @@
 .default-input.search {
     width: 83%;
     max-width: 410px;
+    margin-top: 0px;
 }
 
 .default-input:focus {
@@ -138,3 +140,17 @@
     background-color: #C1FFF0;
     color: black;
 }
+
+.overview-header {
+  font-weight: 800;
+  font-size: 22px;
+  margin-top: 59px;
+}
+
+.overview-card {
+  margin-top: 13px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 23px 23px 23px 23px;
+}
+

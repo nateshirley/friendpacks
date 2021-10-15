@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import Wallet from './Wallet';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
+require('bootstrap/dist/css/bootstrap.min.css');
 require('./index.css');
 
 ReactDOM.render(
