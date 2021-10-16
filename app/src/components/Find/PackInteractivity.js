@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Program, web3 } from '@project-serum/anchor';
 import idl from '../../idl.json';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Row, Col, Container } from "react-bootstrap";
 
 const { PublicKey, SystemProgram } = web3;
 const { TOKEN_PROGRAM_ID } = require("@solana/spl-token");
@@ -24,7 +25,9 @@ const Privilege = {
 const PackInteractivity = ({ privilege, packOverview, getProvider, determinePackMembers }) => {
     const wallet = useWallet();
     let [isEditing, setIsEditing] = useState(false);
-    let [name, setName] = useState('');
+    const [name, setName] = useState('');
+    const [symbol, setSymbol] = useState('');
+    const [uri, setUri] = useState('');
 
     const joinPack = async () => {
         const provider = getProvider();
@@ -97,6 +100,12 @@ const PackInteractivity = ({ privilege, packOverview, getProvider, determinePack
         window.location.reload();
     }
 
+    useEffect(() => {
+        setName(packOverview.name);
+        setSymbol(packOverview.symbol);
+        setUri(packOverview.uri);
+    }, [packOverview]);
+
 
     let isPackFull = Number(packOverview.memberCount) > 6 ? true : false;
     let body = null;
@@ -105,15 +114,44 @@ const PackInteractivity = ({ privilege, packOverview, getProvider, determinePack
             //user can edit. just a big edit button for the whole body
             if (isEditing) {
                 body = (
-                    <div>
-                        <div>
-                            <input
-                                placeholder="set name"
-                                onChange={e => setName(e.target.value)}
-                                value={name}
-                            />
-                        </div>
-                        <button onClick={editPack}>change shit</button>
+                    <div className="pack-interactivity-info">
+                        <Container className="members-card">
+                            <Row>
+                                <Col sm={2}>
+                                    <div className="edit-label">name</div>
+                                    <div className="edit-label">symbol</div>
+                                    <div className="edit-label">uri</div>
+                                </Col>
+                                <Col>
+                                    <div>
+                                        <input
+                                            placeholder="new name"
+                                            onChange={e => setName(e.target.value)}
+                                            value={name}
+                                            className="edit-pack-input"
+                                        />
+                                    </div>
+                                    <div>
+                                        <input
+                                            placeholder="new symbol"
+                                            onChange={e => setSymbol(e.target.value)}
+                                            value={symbol}
+                                            className="edit-pack-input"
+                                        />
+                                    </div>
+                                    <div>
+                                        <input
+                                            placeholder="new uri"
+                                            onChange={e => setUri(e.target.value)}
+                                            value={uri}
+                                            className="edit-pack-input"
+                                        />
+                                    </div>
+                                </Col>
+
+                            </Row>
+                        </Container>
+                        <button onClick={editPack} className="submit-changes">submit changes</button>
                     </div>
                 )
             } else {

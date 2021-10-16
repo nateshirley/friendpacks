@@ -48,7 +48,8 @@ const Find = (props) => {
         symbol: "",
         memberCount: "",
         tokenMint: "",
-        tokenMintDisplayString: ""
+        tokenMintDisplayString: "",
+        uri: ""
     });
     const [packMembers, setPackMembers] = useState([]);
     const [packPrivilege, setPackPrivilege] = useState(Privilege.NONE);
@@ -155,7 +156,8 @@ const Find = (props) => {
                     symbol: metadata.data.symbol,
                     memberCount: parsed.info.supply,
                     tokenMint: packMintKey.toBase58(),
-                    tokenMintDisplayString: toDisplayString(packMintKey)
+                    tokenMintDisplayString: toDisplayString(packMintKey),
+                    uri: metadata.data.uri
                 });
                 fetchPackDataObjectAtUri(metadata.data.uri);
             };
@@ -193,7 +195,7 @@ const Find = (props) => {
         let provider = getProvider()
         let packMints = await getPackMintKeysForWallet(walletPubkey, provider.connection);
         setWalletPackMints(packMints)
-        console.log(packMints);
+        //console.log(packMints);
     }
 
 

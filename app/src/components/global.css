@@ -60,6 +60,10 @@
   text-decoration: none;
 }
 
+.home-button:hover {
+  color: white;
+}
+
 .home-button.find {
   background-color: #ff4561;
   margin-right: 15px;
@@ -223,5 +227,20 @@
   border-width: 0px;
   text-decoration: underline;
   font-weight: 500;
-  
+}
+.submit-changes {
+  margin-top: 20px;
+  font-weight: 600;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+.edit-pack-input {
+  width: 95%;
+}
+.edit-label {
+  height: 32px;
+}
+.packs-count {
+  margin-bottom: 8px;
+  margin-left: 7px;
 }
