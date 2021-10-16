@@ -210,4 +210,18 @@
   white-space: nowrap;
   font-weight: 500;
   color: #A4A4A4;
+  margin-left: 10px;
+}
+.member-key-labels {
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 500;
+  color: black;
+}
+.member-button {
+  background-color: white;
+  border-width: 0px;
+  text-decoration: underline;
+  font-weight: 500;
+  
 }

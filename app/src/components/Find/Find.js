@@ -13,22 +13,15 @@ import { useLocation, useHistory } from 'react-router-dom';
 import "../global.css";
 import { displayPartsToString } from "typescript";
 
-//old program id
-//tokene xample, can join.  5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ
-//GgYncsn5mFYwNoc5h45nbMjQuxhm7Y2w5yWKWCTy5VKz
 
+//E2kNXpspKhbubHdgGBJDnr6TYTZHPpDLRtYsa4HyNrGb -- newest example
 //D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU -- wallet
 
-//E5oxngwMMygv42MWNLAwN83CJ2Pk6Zyk9P8DFsTNNVxm -- new program ID
 
-
-
-
-//i need to figure out how to reload when the key changes
 
 const { getMembersForPackMint, getMetadataAddress, isMetadataV1Account, getPackMintKeysForWallet, fetchAllPackMintAccounts } = require('../../modules/queryHelper.js');
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
-const EXPECTED_MINT_AUTH = "7p18ccUgAidUyLa2vGbBiWPbCwpx9D8V7pDCeFXQaCuJ"; //old met authC3BY8KyUgceUVjCyEuKfxM2uxmQv3iWrgd9rddD3tb7Q,
+const EXPECTED_MINT_AUTH = "7p18ccUgAidUyLa2vGbBiWPbCwpx9D8V7pDCeFXQaCuJ"; //old met auth C3BY8KyUgceUVjCyEuKfxM2uxmQv3iWrgd9rddD3tb7Q,
 const Searches = {
     TOKEN: "token",
     WALLET: "wallet",
@@ -233,6 +226,13 @@ const Find = (props) => {
         return (b58.slice(0,4) + "..." + b58.slice(b58.length - 5, b58.length - 1));
     }
 
+    const didPressPackMember = (publicKey) => {
+        let searchString = publicKey.toBase58();
+        setSearchText(searchString);
+        history.push("?key=" + searchString);
+        search(searchString);
+    }
+
 
     let infoCards = null;
     switch (searchStatus) {
@@ -241,7 +241,7 @@ const Find = (props) => {
                 <div>
                     <PackOverview overview={packOverview} imageLink={packImageLink} />
                     <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} determinePackMembers={determinePackMembers}/>
-                    <PackMembers members={packMembers} />
+                    <PackMembers members={packMembers} didPressPackMember={didPressPackMember}/>
                 </div>
             )
             break;
@@ -273,3 +273,8 @@ const Find = (props) => {
 }
 
 export default Find;
+
+//E5oxngwMMygv42MWNLAwN83CJ2Pk6Zyk9P8DFsTNNVxm -- new program ID
+//old program id
+//tokene xample, can join.  5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ
+//GgYncsn5mFYwNoc5h45nbMjQuxhm7Y2w5yWKWCTy5VKz

@@ -59,7 +59,7 @@ describe('madpacks', () => {
     let samplePackMint = new PublicKey("5q8E6jMNHTjzWRGkeUom7Q8uKgL6rgVdxuMmuePNXwQQ");
     // let members = await getMembersForPackMint(mint, provider.connection);
     let [isMember, members] = await isWalletPackMember(myWalletPubkey, samplePackMint, provider.connection);
-    console.log("is wallet member? ", isMember);
+    console.log("is wallet noooo member? ", isMember);
     console.log("number of members: ", members.length);
 
     //could also do mint authority but fuck it 
@@ -116,15 +116,11 @@ describe('madpacks', () => {
   });
 
 
- 
-
-  /*
-  
   it('create a pack', async () => {
     const metaConfig = {
       name: "Grump Sleepwalker",
-      symbol: "GRMP",
-      uri: "https://arweave.net/O8x2J3gyUmRLm5ZRrUsP3anJiGst5Y4FYn2Wugbktls"
+      symbol: "FAIL",
+      uri: "https://nateshirley.github.io/data/default.json"
     };
 
     const tx = await program.rpc.createPack(authPdaBump, metaConfig, {
@@ -168,6 +164,10 @@ describe('madpacks', () => {
     });
     console.log("create pack tx ", tx);
   });
+
+  /*
+  
+  
   
 
   it('join the pack with a different user', async () => {

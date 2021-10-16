@@ -35,7 +35,7 @@ function Make(props) {
     const metaConfig = {
       name: name,
       symbol: symbol,
-      uri: "https://arweave.net/O8x2J3gyUmRLm5ZRrUsP3anJiGst5Y4FYn2Wugbktls"
+      uri: "https://nateshirley.github.io/data/default.json"
     };
     if (name.length < 1 || symbol.length < 1) {
       return
@@ -150,7 +150,7 @@ function Make(props) {
 
   return (
     <div className="component-parent make">
-      <div className="component-header">Make</div>
+      <div className="component-header">New Pack</div>
       {body}
     </div>
   )
