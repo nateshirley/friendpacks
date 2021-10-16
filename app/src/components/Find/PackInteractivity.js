@@ -79,8 +79,8 @@ const PackInteractivity = ({ privilege, packOverview, getProvider, determinePack
         let tokenAccount = await getAssociatedTokenAccountAddress(wallet.publicKey, mint);
         const metaConfig = {
             name: name,
-            symbol: null,
-            uri: "https://nateshirley.github.io/data/default.json"
+            symbol: symbol,
+            uri: uri
         };
         const tx = await program.rpc.updatePackMetadata(authPdaBump, metaConfig, {
             accounts: {
