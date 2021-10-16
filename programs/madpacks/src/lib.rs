@@ -116,8 +116,10 @@ pub mod madpacks {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         token::mint_to(CpiContext::new_with_signer(cpi_program, cpi_accounts, &[&seeds[..]]), 1)?;
         
-        //check supply -- if greater than 7, freeze
-        if mint_supply > 2 {
+        //check supply -- maybe freeze
+        //should be > 5 that means supply var is 6 (which is before mint), so we just minted 7
+        if mint_supply > 5 {
+            msg!("freezing mint with supply: {}  + 1", mint_supply);
             freeze_mint_supply(ctx, seeds)?;
         }
         Ok(())
@@ -291,7 +293,7 @@ fn freeze_mint_supply(ctx: Context<JoinPack>, seeds: &[&[u8]; 2]) -> ProgramResu
         AuthorityType::MintTokens,
         None
     )?;
-    //not sure if i'm doing this right
+    //not sure if i'm doing these emits right
     emit!(FreezeMint {
         mint: *ctx.accounts.mint.to_account_info().key,
         label: "this mint has been frozen".to_string(),

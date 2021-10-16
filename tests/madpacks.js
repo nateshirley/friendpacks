@@ -165,12 +165,9 @@ describe('madpacks', () => {
     console.log("create pack tx ", tx);
   });
 
-  /*
-  
-  
   
 
-  it('join the pack with a different user', async () => {
+  it('join the again and again', async () => {
     let secondTokenAccount = await getAssociatedTokenAccountAddress(secondMember.publicKey, mint.publicKey);
 
     //mint another
@@ -194,9 +191,38 @@ describe('madpacks', () => {
       ]
     });
     console.log("second join sig", again);
-  });
-  */
 
+
+    // const three = await program.rpc.joinPack(authPdaBump, {
+    //   accounts: {
+    //     mint: mint.publicKey,
+    //     mintAuth: authPda,
+    //     tokenAccount: secondTokenAccount,
+    //     owner: secondMember.publicKey,
+    //     tokenProgram: TOKEN_PROGRAM_ID
+    //   },
+    //   signers: [
+    //     secondMember
+    //   ]
+    // });
+    // console.log("third join sig", three);
+
+    // const four = await program.rpc.joinPack(authPdaBump, {
+    //   accounts: {
+    //     mint: mint.publicKey,
+    //     mintAuth: authPda,
+    //     tokenAccount: secondTokenAccount,
+    //     owner: secondMember.publicKey,
+    //     tokenProgram: TOKEN_PROGRAM_ID
+    //   },
+    //   signers: [
+    //     secondMember
+    //   ]
+    // });
+    // console.log("four join sig", four);
+
+  });
+  
 
 
   /*
