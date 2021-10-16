@@ -27,16 +27,8 @@ const Wallet = () => {
     const wallets = useMemo(
         () => [
             getPhantomWallet(),
-            getSlopeWallet(),
-            getSolflareWallet(),
-            getTorusWallet({
-                options: { clientId: 'Get a client ID @ https://developer.tor.us' },
-            }),
-            getLedgerWallet(),
-            getSolletWallet({ network }),
-            getSolletExtensionWallet({ network }),
         ],
-        [network]
+        []
     );
 
     const onError = useCallback(
