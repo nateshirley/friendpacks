@@ -17,7 +17,7 @@ const WalletPacks = ({ packMints, clickedPack }) => {
     if (packMints.length > 0) {
         packMints.forEach((mint, index) => {
             let mintString = toDisplayString(mint);
-            let linkTo = `/find?key=${mintString}`
+            let linkTo = `/find?key=${mint.toBase58()}`
             packMintLabels.push(<div key={index}>{index + 1}.</div>);
             packMintItems.push((
                 <div key={index}>

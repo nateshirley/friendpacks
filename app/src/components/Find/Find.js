@@ -40,7 +40,7 @@ const Find = (props) => {
     const history = useHistory();
     const [searchText, setSearchText] = useState('');
     const [searchStatus, setSearchStatus] = useState(Searches.NONE);
-
+    const [randomPacks, setRandomPacks] = useState([]);
     //pack search state
     const [packImageLink, setPackImageLink] = useState('');
     const [packOverview, setPackOverview] = useState({
@@ -203,16 +203,17 @@ const Find = (props) => {
     //and then query for it then and refresh the page. fine intermediate solution
     const fetchExamplePacks = async () => {
         let provider = getProvider();
-        let allPacks = await fetchAllPackMintAccounts(provider.connection);
-        let allKeys = allPacks.map((pack) => {
-            return pack.pubkey.toBase58()
-        })
-        let sampleKeys = []
+        let allResponses = await fetchAllPackMintAccounts(provider.connection);
+        let exampleResponses = []
         for (let i = 1; i <= 10; i++) {
-            sampleKeys.push(allKeys[Math.floor(Math.random() * allKeys.length)])
+            exampleResponses.push(allResponses[Math.floor(Math.random() * allResponses.length)])
         }
-        //var sampleItem = allKeys[Math.floor(Math.random()*allKeys.length)]
-        console.log(sampleKeys);
+        let exampleKeys = exampleResponses.map((response) => {
+            const metadata = decodeMetadata(response.account.data);
+            console.log(metadata);
+            return new PublicKey(metadata.mint);
+        })
+        setRandomPacks(exampleKeys);
     }
 
     const clickedPack = (mintKey) => {
@@ -225,7 +226,7 @@ const Find = (props) => {
 
     const toDisplayString = (publicKey) => {
         let b58 = publicKey.toBase58();
-        return (b58.slice(0,4) + "..." + b58.slice(b58.length - 5, b58.length - 1));
+        return (b58.slice(0, 4) + "..." + b58.slice(b58.length - 5, b58.length - 1));
     }
 
     const didPressPackMember = (publicKey) => {
@@ -242,8 +243,8 @@ const Find = (props) => {
             infoCards = (
                 <div>
                     <PackOverview overview={packOverview} imageLink={packImageLink} />
-                    <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} determinePackMembers={determinePackMembers}/>
-                    <PackMembers members={packMembers} didPressPackMember={didPressPackMember}/>
+                    <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} determinePackMembers={determinePackMembers} />
+                    <PackMembers members={packMembers} didPressPackMember={didPressPackMember} />
                 </div>
             )
             break;
@@ -255,11 +256,33 @@ const Find = (props) => {
             )
             break;
         default:
-            infoCards = (
-                <div>
-                </div>
-            )
-            //add show random packs
+            if (randomPacks.length > 0) {
+                let packMintItems = [];
+                randomPacks.forEach((packMint, index) => {
+                    let mintString = toDisplayString(packMint);
+                    packMintItems.push((
+                        <div key={index}>
+                            <button onClick={() => clickedPack(packMint)} className="random-button">{mintString}</button>
+                        </div>
+                    ));
+                })
+                infoCards = (
+                    <div>
+                        <div style={{ fontWeight: "500", marginBottom: "6px", marginTop: "40px" }}>random packs: </div>
+                        {packMintItems}
+                    </div>
+                )
+            } else {
+                infoCards = (
+                    <div>
+                        <div className="random-button-position">or,
+                            <button className="random-button" onClick={fetchExamplePacks}>grab some random packs</button>
+                        </div>
+                    </div>
+                )
+            }
+
+        //add show random packs
     }
 
 
