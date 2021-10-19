@@ -116,7 +116,7 @@ function Make(props) {
   if (!wallet.connected) {
     body = (
       <div className="home-info" style={{ marginTop: "50px" }}>
-        first, select wallet ↗
+        first, select devnet wallet ↗
       </div>
     )
   } else {
