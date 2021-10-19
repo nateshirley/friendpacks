@@ -15,8 +15,8 @@ const PackMembers = ({ members, didPressPackMember }) => {
             let displayMember = toDisplayString(member)
             memberIndexLabels.push(<div key={index}>{index + 1}.</div>);
             memberKeys.push((
-                <div >
-                    <button onClick={() => didPressPackMember(member)} key={index} class="member-button">{displayMember}</button>
+                <div key={index}>
+                    <button onClick={() => didPressPackMember(member)} key={index} className="member-button">{displayMember}</button>
                 </div>
             ));
         });
