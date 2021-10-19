@@ -174,13 +174,13 @@ const PackInteractivity = ({ privilege, packOverview, getProvider, determinePack
             if (isPackFull) {
                 body = (
                     <div className="pack-interactivity-info">
-                        Pack is full. If you're a member, connect wallet to make edits.
+                        Pack is full. If you're a member, connect devnet wallet to make edits.
                     </div>
                 )
             } else {
                 body = (
                     <div className="pack-interactivity-info">
-                        Connect wallet to join this pack or make edits.
+                        Connect devnet wallet to join this pack or make edits.
                     </div>
                 )
             }
