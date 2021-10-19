@@ -54,9 +54,6 @@ const PackInteractivity = ({ privilege, packOverview, getProvider, determinePack
                     wallet.publicKey,
                     wallet.publicKey,
                 ),
-            ],
-            signers: [
-                provider.wallet.payer
             ]
         });
         console.log(tx);
@@ -91,10 +88,7 @@ const PackInteractivity = ({ privilege, packOverview, getProvider, determinePack
                 metadata: metadata,
                 systemProgram: SystemProgram.programId,
                 tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-            },
-            signers: [
-                provider.wallet.payer
-            ]
+            }
         });
         console.log(tx);
         window.location.reload();

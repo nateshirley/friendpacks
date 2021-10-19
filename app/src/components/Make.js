@@ -99,10 +99,10 @@ function Make(props) {
         ),
       ],
       signers: [
-        provider.wallet.payer, mint
+        mint
       ]
     });
-    // console.log("create pack tx ", tx);
+    console.log("create pack tx ", tx);
     setName('');
     setSymbol('');
     setIsLoading(false);
