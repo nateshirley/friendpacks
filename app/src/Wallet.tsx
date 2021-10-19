@@ -11,14 +11,14 @@ import {
     getTorusWallet,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
-import React, {useCallback, useMemo } from 'react';
+import React, {FC, useCallback, useMemo } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import Navigation from './components/navbar/NavigationBar';
 import Notification from './Notification';
 import ComponentSwitch from './ComponentSwitch';
 
 
-const Wallet = () => {
+const Wallet: FC<{ className: string }> = () => {
     const network = WalletAdapterNetwork.Devnet;
     const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
