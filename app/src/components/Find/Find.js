@@ -92,10 +92,8 @@ const Find = (props) => {
             if (decoded.length === 32) {
                 search(packMintKey);
                 setSearchText(packMintKey);
-                return
             }
         }
-        //fetchExamplePacks()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
