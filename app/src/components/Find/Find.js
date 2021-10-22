@@ -259,6 +259,9 @@ const Find = (props) => {
                     <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} determinePackMembers={determinePackMembers} />
                     <PackMembers members={packMembers} didPressPackMember={didPressPackMember} />
                     {inviteButton}
+                    <div className="press-the-button-parent">
+                        <a href="https://www.pressthebutton.xyz" className="press-the-button" target="_blank" rel="noreferrer noopener">have you pressed the button?</a>
+                    </div>
                 </div>
             )
             break;

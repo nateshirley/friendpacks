@@ -198,6 +198,15 @@
   text-align: center;
 }
 
+.press-the-button {
+  font-size: 12px;
+  color: rgb(146, 146, 146);
+}
+
+.press-the-button-parent {
+  margin-top: 80px;
+}
+
 .pack-interactivity-info {
   margin-top: 13px;
   background-color: white;
