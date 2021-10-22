@@ -41,6 +41,7 @@ const Find = (props) => {
     const [searchText, setSearchText] = useState('');
     const [searchStatus, setSearchStatus] = useState(Searches.NONE);
     const [randomPacks, setRandomPacks] = useState([]);
+    const [didPressInvite, setDidPressInvite] = useState(false);
     //pack search state
     const [packImageLink, setPackImageLink] = useState('');
     const [packOverview, setPackOverview] = useState({
@@ -161,6 +162,7 @@ const Find = (props) => {
             };
         }
     }
+
     const determinePackMembers = async (packMintKey) => {
         let provider = getProvider();
         let members = await getMembersForPackMint(packMintKey, provider.connection);
@@ -234,6 +236,19 @@ const Find = (props) => {
         search(searchString);
     }
 
+    const copyPackToClipboard = () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            setDidPressInvite(true);
+        }, () => {
+            console.log("did not sucessfully copy to clipboard");
+        });
+    }
+    let inviteButton = null;
+    if (didPressInvite) {
+        inviteButton = <div className="copied-link">copied link to clipboard!</div>
+    } else {
+        inviteButton = (<button className="invite-friends" onClick={copyPackToClipboard}>invite friends</button>);
+    }
 
     let infoCards = null;
     switch (searchStatus) {
@@ -243,6 +258,7 @@ const Find = (props) => {
                     <PackOverview overview={packOverview} imageLink={packImageLink} />
                     <PackInteractivity privilege={packPrivilege} packOverview={packOverview} getProvider={getProvider} determinePackMembers={determinePackMembers} />
                     <PackMembers members={packMembers} didPressPackMember={didPressPackMember} />
+                    {inviteButton}
                 </div>
             )
             break;

@@ -174,6 +174,30 @@
   color: #A4A4A4;
 }
 
+.invite-friends {
+  font-weight: 600;
+  margin-top: 32px;
+  font-size: 16px;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;  
+  border: 0px;
+  color: #F0387A;
+}
+
+.copied-link {
+  font-weight: 500;
+  color: rgb(109, 109, 109);
+  margin-top: 32px;
+  font-size: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;  
+  text-align: center;
+}
+
 .pack-interactivity-info {
   margin-top: 13px;
   background-color: white;
