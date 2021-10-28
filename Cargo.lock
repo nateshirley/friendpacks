@@ -1258,9 +1258,11 @@ dependencies = [
 name = "token_metadata_local"
 version = "0.1.0"
 dependencies = [
+ "anchor-lang",
  "borsh",
  "solana-program",
  "spl-token",
+ "spl-token-metadata",
 ]
 
 [[package]]
