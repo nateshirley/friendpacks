@@ -5,14 +5,6 @@ use spl_token_metadata::{instruction::{update_metadata_accounts}, state::Metadat
 use token_metadata_local::{create_metadata_accounts};
 
 
-/*
-
-1. it's not deploying the version of my program in this file
-2. it's deploying it but i'm not calling it 
-i think what's happening is that it's deploying it but it's not updating it 
-so it's just redeploying the old one over and over?
-
-*/
 
 declare_id!("5GstP3i7wvo1NEiPDUa9TcdqFFFYaaZDATX2WyVquzT4"); ////old program id w/pda_mint 85185DcWJF1fg7qnAjGnXVf6RU9fPKxCagJ7w1rFxkps
 const AUTH_PDA_SEED: &[u8] = b"authority";
@@ -30,6 +22,7 @@ pub mod madpacks {
         assert_metadata_matches_mint(&ctx.accounts.token_metadata_program, &ctx.accounts.mint, &ctx.accounts.metadata)?;
 
         let mint_supply = Mint::unpack(&ctx.accounts.mint.to_account_info().data.borrow())?.supply;
+        //not checking for decimals 
         if mint_supply > 0 {
             msg!("must create with supply 0");
             return Err(ErrorCode::NonzeroSupplyCreation.into());
@@ -198,6 +191,7 @@ pub struct NewMetadata {
     pub uri: Option<String>,
 }
 
+//this needs to check that there is a token in the account. it's still called NewName
 #[derive(Accounts)]
 #[instruction(_auth_pda_bump: u8)]
 pub struct NewName<'info> {

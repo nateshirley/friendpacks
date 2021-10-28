@@ -141,6 +141,7 @@ export const createAssociatedTokenAccountInstruction = (
     });
 }
 
+//yeah so this gets all the metadata accounts with first creator set to the pda
 //returns Promise<{ account: AccountInfo<Buffer>; pubkey: PublicKey }
 export const fetchAllPackMintAccounts = async (connection) => {
     let [authPda, _bump] = await getAuthPda();

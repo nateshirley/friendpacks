@@ -14,6 +14,7 @@ const mintHasVerifiedCreator = async (mintPubkey, expectedCreator, connection) =
     let [metadataAddress, _bump] = await getMetadataAddress(mintPubkey);
     let metadataInfo = await connection.getAccountInfo(metadataAddress);
     if (Boolean(metadataInfo)) {
+    //currently not checking if it's verified
       let firstCreator = new PublicKey(metadataInfo.data.slice(326,358));
       let isFirstCreatorVerified = metadataInfo.data[358];
       if (expectedCreator.equals(firstCreator) && isFirstCreatorVerified) {
@@ -132,6 +133,7 @@ exports.createAssociatedTokenAccountInstruction = (
 }
 
 //returns Promise<{ account: AccountInfo<Buffer>; pubkey: PublicKey }
+// i think this is running off of the metadata's verified creator
 exports.fetchAllPackMintAccounts = async (connection) => {
     let [authPda, _bump] = await getAuthPda();
     //https://solana-labs.github.io/solana-web3.js/modules.html#MemcmpFilter

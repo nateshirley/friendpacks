@@ -210,7 +210,7 @@ const Find = (props) => {
         }
         let exampleKeys = exampleResponses.map((response) => {
             const metadata = decodeMetadata(response.account.data);
-            console.log(metadata);
+            //console.log(metadata);
             return new PublicKey(metadata.mint);
         })
         setRandomPacks(exampleKeys);
