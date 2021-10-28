@@ -13,12 +13,12 @@ export const mintHasVerifiedCreator = async (mintPubkey, expectedCreator, connec
     let [metadataAddress, _bump] = await getMetadataAddress(mintPubkey);
     let metadataInfo = await connection.getAccountInfo(metadataAddress);
     if (Boolean(metadataInfo)) {
-      let firstCreator = new PublicKey(metadataInfo.data.slice(326,358));
-      let isFirstCreatorVerified = metadataInfo.data[358];
-      if (expectedCreator.equals(firstCreator) && isFirstCreatorVerified) {
-        //console.log("the creator is good");
-        return true
-      } 
+        let firstCreator = new PublicKey(metadataInfo.data.slice(326, 358));
+        let isFirstCreatorVerified = metadataInfo.data[358];
+        if (expectedCreator.equals(firstCreator) && isFirstCreatorVerified) {
+            //console.log("the creator is good");
+            return true
+        }
     }
     return false
 }
@@ -42,9 +42,9 @@ const filterResponsesForSquadMintKeys = async (responses, connection) => {
     const [expectedCreator, _bump] = await getAuthPda();
     //response: {account: AccountInfo<Buffer>; pubkey: PublicKey }
     await Promise.all(responses.map(async (response) => {
-        let mintKey = new PublicKey(response.account.data.slice(0,32));
+        let mintKey = new PublicKey(response.account.data.slice(0, 32));
         if (await mintHasVerifiedCreator(mintKey, expectedCreator, connection)) {
-            mintKeys.push(mintKey);        
+            mintKeys.push(mintKey);
         }
     }));
     return mintKeys
@@ -69,9 +69,9 @@ export const filterResponsesForSquadMintAccounts = async (responses, connection)
     const [expectedCreator, _bump] = await getAuthPda();
     //response: {account: AccountInfo<Buffer>; pubkey: PublicKey }
     await Promise.all(responses.map(async (response) => {
-        let mintKey = new PublicKey(response.account.data.slice(0,32));
+        let mintKey = new PublicKey(response.account.data.slice(0, 32));
         if (await mintHasVerifiedCreator(mintKey, expectedCreator, connection)) {
-            mintAccounts.push(response.account);        
+            mintAccounts.push(response.account);
         }
     }));
     return mintAccounts
@@ -87,9 +87,9 @@ const getAuthPda = async () => {
 export const getMetadataAddress = async (mintPubkey) => {
     return await anchor.web3.PublicKey.findProgramAddress(
         [
-          Buffer.from("metadata"),
-          TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-          mintPubkey.toBuffer(),
+            Buffer.from("metadata"),
+            TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+            mintPubkey.toBuffer(),
         ],
         TOKEN_METADATA_PROGRAM_ID
     );
@@ -112,8 +112,8 @@ export const getAssociatedTokenAccountAddress = async (owner, mint) => {
     let associatedProgramId = new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
     return (
         await PublicKey.findProgramAddress(
-        [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-        associatedProgramId
+            [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+            associatedProgramId
         )
     )[0];
 };
@@ -123,16 +123,16 @@ export const createAssociatedTokenAccountInstruction = (
     associatedAccount,
     owner,
     payer,
-  ) => {
+) => {
     const data = Buffer.alloc(0);
     let keys = [
-      {pubkey: payer, isSigner: true, isWritable: true},
-      {pubkey: associatedAccount, isSigner: false, isWritable: true},
-      {pubkey: owner, isSigner: false, isWritable: false},
-      {pubkey: mint, isSigner: false, isWritable: false},
-      {pubkey: SystemProgram.programId, isSigner: false, isWritable: false},
-      {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
-      {pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false},
+        { pubkey: payer, isSigner: true, isWritable: true },
+        { pubkey: associatedAccount, isSigner: false, isWritable: true },
+        { pubkey: owner, isSigner: false, isWritable: false },
+        { pubkey: mint, isSigner: false, isWritable: false },
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
     ];
     return new TransactionInstruction({
         keys,
@@ -141,41 +141,51 @@ export const createAssociatedTokenAccountInstruction = (
     });
 }
 
+//yeah so this gets all the metadata accounts with first creator set to the pda
 //returns Promise<{ account: AccountInfo<Buffer>; pubkey: PublicKey }
+// "2" is base58 encoded hex value 01, representing true for verification of the creator
 export const fetchAllPackMintAccounts = async (connection) => {
     let [authPda, _bump] = await getAuthPda();
     //https://solana-labs.github.io/solana-web3.js/modules.html#MemcmpFilter
     let config = {
-      filters: [
-        {
-          dataSize: 679
-        },
-        { memcmp: 
-          {
-            bytes: authPda.toBase58(), 
-            offset: 326
-          } 
-        },
-      ]
-    }   
+        filters: [
+            {
+                dataSize: 679
+            },
+            {
+                memcmp:
+                {
+                    bytes: authPda.toBase58(),
+                    offset: 326
+                }
+            },
+            {
+                memcmp:
+                {
+                    bytes: "2",
+                    offset: 358
+                }
+            },
+        ]
+    }
     //https://solana-labs.github.io/solana-web3.js/classes/Connection.html#getProgramAccounts
     let accounts = await connection.getProgramAccounts(
-      TOKEN_METADATA_PROGRAM_ID,
-      config
+        TOKEN_METADATA_PROGRAM_ID,
+        config
     );
     return accounts;
-} 
+}
 
 export const getMembersForPackMint = async (mintPubkey, connection) => {
     let TokenMint = new Token(
-      connection,
-      mintPubkey,
-      TOKEN_PROGRAM_ID,
-      Keypair.generate()
+        connection,
+        mintPubkey,
+        TOKEN_PROGRAM_ID,
+        Keypair.generate()
     );
     let largestAccounts = await connection.getTokenLargestAccounts(mintPubkey);
     let holders = Array.from(largestAccounts.value);
-    
+
     //gets all owners into pubkey array
     let members = [];
     await Promise.all(holders.map(async (holder) => {
@@ -268,9 +278,9 @@ export const buildConnectedMembersDict = async (walletPubkey, connection) => {
     for the pack info
     - name
     - symbol
-    - image 
+    - image
 
-    - members -- get the id 
+    - members -- get the id
 
     ended up getting the breakpoint fellowship so i think
 

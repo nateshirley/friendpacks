@@ -21,7 +21,7 @@ import { displayPartsToString } from "typescript";
 
 const { getMembersForPackMint, getMetadataAddress, isMetadataV1Account, getPackMintKeysForWallet, fetchAllPackMintAccounts } = require('../../modules/queryHelper.js');
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
-const EXPECTED_MINT_AUTH = "7p18ccUgAidUyLa2vGbBiWPbCwpx9D8V7pDCeFXQaCuJ"; //old met auth C3BY8KyUgceUVjCyEuKfxM2uxmQv3iWrgd9rddD3tb7Q,
+const EXPECTED_MINT_AUTH = "7p18ccUgAidUyLa2vGbBiWPbCwpx9D8V7pDCeFXQaCuJ"; //old met auth C3BY8KyUgceUVjCyEuKfxM2uxmQv3iWrgd9rddD3tb7Q, ue4mLKmjG2oHutx65JVVGvLJLDsCLqRCaUnJ96usKfp
 const Searches = {
     TOKEN: "token",
     WALLET: "wallet",
@@ -136,18 +136,25 @@ const Find = (props) => {
         }
     }
     const fetchPackOverview = async (packMintKey) => {
+        console.log('s')
         let provider = getProvider();
         let result = (await provider.connection.getParsedAccountInfo(packMintKey)).value;
         let parsed = result.data.parsed;
         if (parsed.info.freezeAuthority !== EXPECTED_MINT_AUTH || result.data.program !== "spl-token") {
-            console.log("");
+            console.log("err");
+            console.log(parsed.info.freezeAuthority);
             return
         }
+        console.log('one')
         // eslint-disable-next-line no-unused-vars
         const [metadataAddress, _bump] = await getMetadataAddress(packMintKey);
         const accountInfo = await provider.connection.getAccountInfo(metadataAddress);
         if (accountInfo && accountInfo.data.length > 0) {
+            console.log('tw')
+
             if (isMetadataV1Account(accountInfo)) {
+                console.log('th')
+
                 const metadata = decodeMetadata(accountInfo.data);
                 console.log(metadata);
                 setPackOverview({
@@ -210,7 +217,7 @@ const Find = (props) => {
         }
         let exampleKeys = exampleResponses.map((response) => {
             const metadata = decodeMetadata(response.account.data);
-            console.log(metadata);
+            //console.log(metadata);
             return new PublicKey(metadata.mint);
         })
         setRandomPacks(exampleKeys);
