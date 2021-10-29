@@ -28,8 +28,7 @@ pub mod madpacks {
         _auth_pda_bump: u8,
         meta_config: MetaConfig,
     ) -> ProgramResult {
-        let (_pda, bump_seed) = Pubkey::find_program_address(&[AUTH_PDA_SEED], ctx.program_id);
-        let seeds = &[&AUTH_PDA_SEED[..], &[bump_seed]];
+        let seeds = &[&AUTH_PDA_SEED[..], &[_auth_pda_bump]];
 
         token_metadata_local::create_metadata(
             ctx.accounts
@@ -63,10 +62,8 @@ pub mod madpacks {
         Ok(())
     }
     pub fn join_pack(ctx: Context<JoinPack>, _auth_pda_bump: u8) -> ProgramResult {
-        //charge a small fee? -- idk maybe not on this one. enough to discourage u from doing it for no reason. idk
-        //make sure the supply is > 0 before minting. you have to call create_pack before joining
-        let (_pda, bump_seed) = Pubkey::find_program_address(&[AUTH_PDA_SEED], ctx.program_id);
-        let seeds = &[&AUTH_PDA_SEED[..], &[bump_seed]];
+        let seeds = &[&AUTH_PDA_SEED[..], &[_auth_pda_bump]];
+
         //mint to the user's token account
         let cpi_accounts = token::MintTo {
             mint: ctx.accounts.mint.to_account_info(),
@@ -118,8 +115,7 @@ pub mod madpacks {
             ctx.accounts.metadata.clone(),
             ctx.accounts.mint_auth.to_account_info(),
         ];
-        let (_pda, bump_seed) = Pubkey::find_program_address(&[AUTH_PDA_SEED], ctx.program_id);
-        let seeds = &[&AUTH_PDA_SEED[..], &[bump_seed]];
+        let seeds = &[&AUTH_PDA_SEED[..], &[_auth_pda_bump]];
         invoke_signed(
             &new_name_instruction,
             new_name_infos.as_slice(),
