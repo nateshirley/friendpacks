@@ -83,6 +83,24 @@ const Find = (props) => {
         }
     }
 
+    useEffect(() => {
+        return history.listen(location => {
+            if (history.action === 'POP') {
+                console.log('back button pressed')
+                const filterParams = history.location.search.substr(1);
+                const filtersFromParams = qs.parse(filterParams);
+                if (filtersFromParams.key) {
+                    let packMintKey = String(filtersFromParams.key)
+                    let decoded = bs58.decode(packMintKey);
+                    if (decoded.length === 32) {
+                        search(packMintKey);
+                        setSearchText(packMintKey);
+                    }
+                }
+            }
+        })
+    })
+
     //this parses the url on first render and does a search if it finds a valid key in url params
     useEffect(() => {
         const filterParams = history.location.search.substr(1);
@@ -97,12 +115,6 @@ const Find = (props) => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const location = useLocation();
-    useEffect(() => {
-        console.log('Location changed');
-        //console.log(location);
-    }, [location]);
 
     const checkSearchType = async (searchText) => {
         let decoded = bs58.decode(searchText);
@@ -136,7 +148,6 @@ const Find = (props) => {
         }
     }
     const fetchPackOverview = async (packMintKey) => {
-        console.log('s')
         let provider = getProvider();
         let result = (await provider.connection.getParsedAccountInfo(packMintKey)).value;
         let parsed = result.data.parsed;
@@ -145,16 +156,11 @@ const Find = (props) => {
             console.log(parsed.info.freezeAuthority);
             return
         }
-        console.log('one')
         // eslint-disable-next-line no-unused-vars
         const [metadataAddress, _bump] = await getMetadataAddress(packMintKey);
         const accountInfo = await provider.connection.getAccountInfo(metadataAddress);
         if (accountInfo && accountInfo.data.length > 0) {
-            console.log('tw')
-
             if (isMetadataV1Account(accountInfo)) {
-                console.log('th')
-
                 const metadata = decodeMetadata(accountInfo.data);
                 console.log(metadata);
                 setPackOverview({
