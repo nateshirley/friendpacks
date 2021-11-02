@@ -1,43 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400&display=swap");
 body {
-    margin: 0;
-    font-family: 'Inter', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #EDEDED !important;
-    color: black;
+  margin: 0;
+  font-family: "Inter", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #ededed !important;
+  color: black;
 }
 
 nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2rem 2rem 0rem 2rem;
-    background: #EDEDED;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 2rem 0rem 2rem;
+  background: #ededed;
 }
 
 :root {
-    background-color: #EDEDED;
+  background-color: #ededed;
 }
 
 .global-body {
-    background: #EDEDED;
+  background: #ededed;
 }
 
 nav > div {
-    display: flex;
+  display: flex;
 }
 
 nav > div > button {
-    margin-left: 1rem;
+  margin-left: 1rem;
 }
 
 @media (max-width: 400px) {
-    nav > h1 {
-        max-width: 90px;
-    }
+  nav > h1 {
+    max-width: 90px;
+  }
 }
