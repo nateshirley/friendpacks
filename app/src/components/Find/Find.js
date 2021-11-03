@@ -9,14 +9,12 @@ import bs58 from 'bs58';
 import qs from "qs";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { decodeMetadata } from "./decodeMetadata";
-import { useLocation, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import "../global.css";
-import { displayPartsToString } from "typescript";
 
 
 //E2kNXpspKhbubHdgGBJDnr6TYTZHPpDLRtYsa4HyNrGb -- newest example
 //D57gFXBTMAtmRHg6CjXsNjyUem9FjSWManLiMAMXVaEU -- wallet
-
 
 
 const { getMembersForPackMint, getMetadataAddress, isMetadataV1Account, getPackMintKeysForWallet, fetchAllPackMintAccounts } = require('../../modules/queryHelper.js');
@@ -90,11 +88,11 @@ const Find = (props) => {
                 const filterParams = history.location.search.substr(1);
                 const filtersFromParams = qs.parse(filterParams);
                 if (filtersFromParams.key) {
-                    let packMintKey = String(filtersFromParams.key)
-                    let decoded = bs58.decode(packMintKey);
+                    let publicKey = String(filtersFromParams.key)
+                    let decoded = bs58.decode(publicKey);
                     if (decoded.length === 32) {
-                        search(packMintKey);
-                        setSearchText(packMintKey);
+                        search(publicKey);
+                        setSearchText(publicKey);
                     }
                 }
             }
@@ -239,7 +237,7 @@ const Find = (props) => {
 
     const toDisplayString = (publicKey) => {
         let b58 = publicKey.toBase58();
-        return (b58.slice(0, 4) + "..." + b58.slice(b58.length - 5, b58.length - 1));
+        return (b58.slice(0, 4) + "..." + b58.slice(b58.length - 5, b58.length));
     }
 
     const didPressPackMember = (publicKey) => {

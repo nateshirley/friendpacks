@@ -5,7 +5,7 @@ const PackMembers = ({ members, didPressPackMember }) => {
 
     const toDisplayString = (publicKey) => {
         let b58 = publicKey.toBase58();
-        return (b58.slice(0,7) + "....." + b58.slice(b58.length - 8, b58.length - 1));
+        return (b58.slice(0, 7) + "....." + b58.slice(b58.length - 8, b58.length));
     }
 
     if (members.length > 0) {
@@ -23,16 +23,16 @@ const PackMembers = ({ members, didPressPackMember }) => {
         return (
             <div className="members-header">
                 Members
-            <Container className="members-card">
-                <Row>
-                    <Col sm={2} className="member-index-labels">
-                        {memberIndexLabels}
-                    </Col>
-                    <Col sm={9} className="member-key-labels">
-                        {memberKeys}
-                    </Col>
-                </Row>
-            </Container>
+                <Container className="members-card">
+                    <Row>
+                        <Col sm={2} className="member-index-labels">
+                            {memberIndexLabels}
+                        </Col>
+                        <Col sm={9} className="member-key-labels">
+                            {memberKeys}
+                        </Col>
+                    </Row>
+                </Container>
             </div>
         );
     } else {
