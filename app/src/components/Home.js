@@ -6,7 +6,7 @@ class Home extends Component {
   render() {
     return (
       <div className="component-parent">
-        <img src={homeLogo} alt="logo" className="home-logo"/>
+        <img src={homeLogo} alt="logo" className="home-logo" />
         <div className="home-info">A friend group primitive on Solana. Make a pack and invite your friends—then stick together.</div>
         <div className="home-button-group">
           <Link to="/find" className="home-button find">find a pack</Link>

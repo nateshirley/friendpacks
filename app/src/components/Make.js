@@ -1,7 +1,7 @@
 import './../App.css';
 import { useState } from 'react';
-import { PublicKey } from '@solana/web3.js';
-import { Program, web3 } from '@project-serum/anchor';
+import { PublicKey, SystemProgram, Keypair, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { Program, utils } from '@project-serum/anchor';
 import { useWallet } from '@solana/wallet-adapter-react';
 import idl from '../idl.json';
 import "./global.css";
@@ -10,8 +10,6 @@ import MoonLoader from "react-spinners/MoonLoader";
 import { css } from "@emotion/react";
 
 
-const { SystemProgram, Keypair, SYSVAR_RENT_PUBKEY } = web3;
-const anchor = require('@project-serum/anchor');
 const SPLToken = require("@solana/spl-token");
 const { TOKEN_PROGRAM_ID, Token, MintLayout } = SPLToken;
 const programID = new PublicKey(idl.metadata.address);
@@ -44,10 +42,10 @@ function Make(props) {
     const program = new Program(idl, programID, provider);
 
     console.log(provider);
-    
+
     let [authPda, authPdaBump] = await PublicKey.findProgramAddress(
       //gets a determinstic pda address using this string and the program id
-      [anchor.utils.bytes.utf8.encode("authority")],
+      [utils.bytes.utf8.encode("authority")],
       program.programId
     );
 
@@ -108,7 +106,7 @@ function Make(props) {
     setIsLoading(false);
     //push user to pack details page with mint id
     history.replace("/find?key=" + mint.publicKey.toBase58())
-    
+
   }
 
   let body = null;
@@ -139,14 +137,14 @@ function Make(props) {
           />
         </div>
         {isLoading
-          ? <div style={{marginTop: "24px"}}><MoonLoader loading={true} size={31} css={override} /></div>
+          ? <div style={{ marginTop: "24px" }}><MoonLoader loading={true} size={31} css={override} /></div>
           : <button className="default-button make" onClick={createPack}>make new pack</button>
         }
       </div>
     )
   }
 
- 
+
 
   return (
     <div className="component-parent make">

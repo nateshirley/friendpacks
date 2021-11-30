@@ -26,18 +26,18 @@
 }
 
 .home-logo {
-  width: 338px;
-  height: 106px;
+  width: 472px;
+  height: 120px;
   margin-top: 44px;
   margin-left: auto;
   margin-right: auto;
   display: block;
-  margin-bottom: 63px;
+  margin-bottom: 43px;
 }
 
 .home-info {
   font-family: "Quicksand", sans-serif;
-  font-style:normal;
+  font-style: normal;
   font-weight: 600;
   font-size: 20px;
   text-align: center;
@@ -171,7 +171,7 @@
   overflow: hidden;
   white-space: nowrap;
   font-weight: 500;
-  color: #A4A4A4;
+  color: #a4a4a4;
 }
 
 .invite-friends {
@@ -182,9 +182,9 @@
   cursor: pointer;
   margin-left: auto;
   margin-right: auto;
-  display: block;  
+  display: block;
   border: 0px;
-  color: #F0387A;
+  color: #f0387a;
 }
 
 .copied-link {
@@ -194,7 +194,7 @@
   font-size: 16px;
   margin-left: auto;
   margin-right: auto;
-  display: block;  
+  display: block;
   text-align: center;
 }
 
@@ -230,7 +230,7 @@
   color: white;
 }
 .pack-interactive-button.edit {
-  background-color: #ADF1FF;
+  background-color: #adf1ff;
   color: black;
 }
 .members-card {
@@ -251,7 +251,7 @@
   overflow: hidden;
   white-space: nowrap;
   font-weight: 500;
-  color: #A4A4A4;
+  color: #a4a4a4;
   margin-left: 10px;
 }
 .member-key-labels {
@@ -298,5 +298,4 @@
 }
 
 .random-packs {
-  
 }
